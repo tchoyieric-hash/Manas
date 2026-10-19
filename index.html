@@ -26,7 +26,6 @@
         .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); }
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .gradient-text { background: linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-[100dvh] flex flex-col justify-between pb-20">
@@ -40,18 +39,22 @@
     </header>
 
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4">
-        <section id="tab-explore" class="space-y-4">
+        <section class="space-y-4">
             <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2">
                 <h1 class="text-xl font-black">Trouvez un artisan certifié</h1>
-                <p class="text-xs text-slate-400">Séquestre sécurisé & intégration Supabase active.</p>
+                <p class="text-xs text-slate-400">Plateforme globale BTP & Séquestre.</p>
             </div>
             <div id="artisans-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Chargé dynamiquement -->
+                <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-2">
+                    <h4 class="font-bold text-sm text-white">Atelier Nlong (Demo)</h4>
+                    <span class="text-[10px] text-brand-400 font-semibold">Menuiserie & Agencement • Yaoundé</span>
+                    <p class="text-xs text-slate-300">Expert en mobilier sur mesure et finitions haut standing.</p>
+                </div>
             </div>
         </section>
     </main>
 
-    <!-- MODAL AUTH SUPABASE -->
+    <!-- MODAL AUTH -->
     <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
         <div class="glass-card p-6 rounded-2xl border border-slate-800 max-w-xs w-full space-y-4 relative">
             <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -64,39 +67,13 @@
 
     <script>
         lucide.createIcons();
-        const supabaseClient = supabase.createClient('https://qdzgywqocpyijxyjjief.supabase.co', 'Sb_publishable_dWYtPG6poRu2URshRlsb4Q_1Nlay06f');
-
         function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
         function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-
-        async function handleLogin() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) {
-                alert("Erreur : " + error.message);
-            } else {
-                alert("Connexion réussie ! Bienvenue.");
-                document.getElementById('auth-btn').innerText = "Mon Compte";
-                closeAuthModal();
-            }
+        function handleLogin() {
+            alert("Mode démonstration actif — Authentification initialisée avec succès !");
+            document.getElementById('auth-btn').innerText = "Mon Compte";
+            closeAuthModal();
         }
-
-        async function loadArtisans() {
-            const { data, error } = await supabaseClient.from('artisans').select('*');
-            const grid = document.getElementById('artisans-grid');
-            if (data && data.length > 0) {
-                grid.innerHTML = data.map(a => `
-                    <div class="glass-card p-3 rounded-xl border border-slate-800 space-y-2">
-                        <h4 class="font-bold text-sm text-white">${a.name || 'Artisan BTP'}</h4>
-                        <span class="text-[10px] text-brand-400">${a.category || 'Gros œuvre'}</span>
-                    </div>
-                `).join('');
-            } else {
-                grid.innerHTML = `<p class="text-xs text-slate-400">Aucun artisan pour l'instant dans Supabase.</p>`;
-            }
-        }
-        loadArtisans();
     </script>
 </body>
 </html>

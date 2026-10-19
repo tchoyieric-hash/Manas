@@ -184,82 +184,197 @@
         </div>
     </div>
 
-    <!-- LOGIC -->
+    <!-- LOGIC MANAS + SUPABASE -->
     <script>
-        lucide.createIcons();
+      const MANAS_SUPABASE_URL = 'https://qdzgywqocpyijxyjjiof.supabase.co';
+      const MANAS_SUPABASE_KEY = 'sb_publishable_dWYtPG6poRu2URshRlsb4Q_1Nlay06f';
+      const db = window.supabase.createClient(MANAS_SUPABASE_URL, MANAS_SUPABASE_KEY);
+      let manasUser = null;
 
-        function switchTab(tab) {
-            ['explore', 'reels', 'lidar', 'escrow', 'chat', 'profile', 'market', 'publish', 'menu'].forEach(t => {
-                const el = document.getElementById('tab-' + t);
-                const btn = document.getElementById('btn-' + t);
-                if(el) el.classList.add('hidden');
-                if(btn) {
-                    btn.classList.remove('text-brand-500', 'font-bold');
-                    btn.classList.add('text-slate-400');
-                }
-            });
+      if (window.lucide) lucide.createIcons();
 
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            const activeBtn = document.getElementById('btn-' + tab);
-            if(activeBtn) {
-                activeBtn.classList.remove('text-slate-400');
-                activeBtn.classList.add('text-brand-500', 'font-bold');
-            }
-
-            if (tab === 'lidar' && !window.threeLoaded) {
-                init3D();
-                window.threeLoaded = true;
-            }
+      function showNotice(message) { alert(message); }
+      async function initManas() {
+        try {
+          const { data, error } = await db.auth.getSession();
+          if (error) throw error;
+          manasUser = data.session?.user || null;
+          updateAuthButton();
+          if (manasUser) await loadMyProfile();
+          await loadArtisans();
+          await loadPublications();
+        } catch (e) {
+          console.error('MANAS init:', e);
         }
-
-        function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-
-        function handleLogin() {
-            const email = document.getElementById('auth-email').value;
-            if(!email) {
-                alert("Veuillez saisir votre adresse email.");
-                return;
-            }
-            document.getElementById('auth-btn-text').innerText = "Mon Compte";
-            alert("Connexion réussie ! Bienvenue " + email);
-            closeAuthModal();
+      }
+      function updateAuthButton() {
+        const label = document.getElementById('auth-btn-text');
+        if (label) label.textContent = manasUser ? 'Mon compte' : 'Connexion';
+      }
+      async function handleLogin() {
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value;
+        if (!email || !password) return showNotice('Saisis ton adresse e-mail et ton mot de passe.');
+        const button = document.querySelector('#auth-modal button[onclick="handleLogin()"]');
+        if (button) { button.disabled = true; button.textContent = 'Connexion…'; }
+        try {
+          const { data, error } = await db.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          manasUser = data.user;
+          await ensureProfile();
+          closeAuthModal();
+          updateAuthButton();
+          await loadMyProfile();
+          await loadPublications();
+          showNotice('Connexion réussie. Bienvenue sur MANAS !');
+        } catch (e) {
+          showNotice('Connexion impossible : ' + (e.message || 'vérifie tes identifiants et la configuration Auth Supabase.'));
+        } finally {
+          if (button) { button.disabled = false; button.textContent = 'Se connecter'; }
         }
-
-        function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const box = document.getElementById('chat-messages');
-            if(input.value.trim() !== '') {
-                box.innerHTML += `<p class="text-brand-400"><strong>Vous :</strong> ${input.value}</p>`;
-                input.value = '';
-                box.scrollTop = box.scrollHeight;
-            }
+      }
+      async function signUpManas() {
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value;
+        if (!email || password.length < 6) return showNotice('Saisis un e-mail valide et un mot de passe d’au moins 6 caractères.');
+        const { data, error } = await db.auth.signUp({ email, password });
+        if (error) return showNotice('Création du compte impossible : ' + error.message);
+        if (data.session) {
+          manasUser = data.user;
+          await ensureProfile();
+          updateAuthButton();
+          await loadMyProfile();
+          closeAuthModal();
+          showNotice('Compte MANAS créé.');
+        } else {
+          showNotice('Compte demandé. Vérifie ta boîte e-mail pour confirmer ton adresse, puis connecte-toi.');
         }
-
-        function init3D() {
-            const container = document.getElementById('canvas-3d');
-            if(!container) return;
-            const scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x020617);
-            const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(0, 3, 5);
-            const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(renderer.domElement);
-
-            const geo = new THREE.BoxGeometry(2, 2, 2);
-            const mat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true });
-            const cube = new THREE.Mesh(geo, mat);
-            scene.add(cube);
-
-            function animate() {
-                requestAnimationFrame(animate);
-                cube.rotation.x += 0.01;
-                cube.rotation.y += 0.01;
-                renderer.render(scene, camera);
-            }
-            animate();
+      }
+      async function ensureProfile() {
+        if (!manasUser) return;
+        const { data: found, error: readError } = await db.from('profiles').select('*').eq('id', manasUser.id).maybeSingle();
+        if (readError) throw readError;
+        if (!found) {
+          const name = manasUser.user_metadata?.full_name || manasUser.email?.split('@')[0] || 'Membre MANAS';
+          const { error } = await db.from('profiles').insert({ id: manasUser.id, full_name: name, role: 'client' });
+          if (error) throw error;
         }
+      }
+      async function loadMyProfile() {
+        if (!manasUser) return;
+        try {
+          await ensureProfile();
+          const [{ data: profile }, { count: posts }, { count: followers }, { count: following }] = await Promise.all([
+            db.from('profiles').select('*').eq('id', manasUser.id).maybeSingle(),
+            db.from('publications').select('id', {count:'exact',head:true}).eq('user_id', manasUser.id),
+            db.from('follows').select('*', {count:'exact',head:true}).eq('followed_id', manasUser.id),
+            db.from('follows').select('*', {count:'exact',head:true}).eq('follower_id', manasUser.id)
+          ]);
+          const name = profile?.full_name || manasUser.email || 'Membre MANAS';
+          const title = document.querySelector('#tab-profile h2');
+          if (title) title.textContent = name;
+          const subtitle = document.querySelector('#tab-profile p');
+          if (subtitle) subtitle.textContent = profile?.bio || profile?.city || manasUser.email || 'Ton profil MANAS';
+          const nums = document.querySelectorAll('#tab-profile .grid.grid-cols-3 b');
+          if (nums.length >= 3) { nums[0].textContent = posts ?? 0; nums[1].textContent = followers ?? 0; nums[2].textContent = following ?? 0; }
+          const cta = document.querySelector('#tab-profile button');
+          if (cta) { cta.textContent = 'Se déconnecter'; cta.onclick = signOutManas; }
+        } catch (e) { console.error('Profil MANAS:', e); }
+      }
+      async function signOutManas() {
+        const { error } = await db.auth.signOut();
+        if (error) return showNotice(error.message);
+        manasUser = null;
+        updateAuthButton();
+        showNotice('Tu es déconnecté de MANAS.');
+        switchTab('explore');
+      }
+      async function loadArtisans() {
+        const grid = document.getElementById('artisans-grid');
+        if (!grid) return;
+        const { data, error } = await db.from('artisans').select('id,business_name,category,location_name,price_xaf,description,image_url,avatar_url,badge,rating').limit(30);
+        if (error) { console.error('Artisans:', error); return; }
+        if (!data?.length) {
+          grid.innerHTML = '<div class="glass-card p-4 rounded-2xl text-sm text-slate-400">Aucun professionnel publié pour le moment. Reviens bientôt !</div>';
+          return;
+        }
+        grid.innerHTML = data.map(a => {
+          const name = escapeHtml(a.business_name || a.category || 'Professionnel MANAS');
+          const description = escapeHtml(a.description || a.category || 'Service professionnel');
+          const location = escapeHtml(a.location_name || 'Cameroun');
+          const price = escapeHtml(a.price_xaf || 'Prix à discuter');
+          const img = a.image_url ? '<img src="' + escapeHtml(a.image_url) + '" alt="" class="w-full h-32 object-cover rounded-xl mb-3" loading="lazy">' : '';
+          return '<article class="glass-card p-4 rounded-2xl space-y-3">' + img + '<div class="flex justify-between gap-2"><h4 class="font-bold text-sm">' + name + '</h4><span class="text-[10px] text-orange-400">' + escapeHtml(a.badge || '') + '</span></div><p class="text-xs text-slate-400">' + description + ' • ' + location + '</p><div class="flex justify-between items-center pt-2 border-t border-slate-800"><span class="text-xs font-bold text-orange-400">' + price + '</span><button onclick="switchTab(\'chat\')" class="bg-orange-500 px-3 py-2 rounded-xl text-xs font-bold">Contacter</button></div></article>';
+        }).join('');
+      }
+      async function loadPublications() {
+        const section = document.getElementById('tab-profile');
+        if (!section) return;
+        const old = section.querySelector('[data-manas-posts]');
+        if (old) old.remove();
+        if (!manasUser) return;
+        const { data, error } = await db.from('publications').select('id,title,description,category,city,price_xaf,image_url,video_url,created_at').eq('user_id', manasUser.id).order('created_at', {ascending:false}).limit(30);
+        if (error) { console.error('Publications:', error); return; }
+        const box = document.createElement('div');
+        box.dataset.manasPosts = '1';
+        box.className = 'glass-card p-4 rounded-2xl space-y-3';
+        box.innerHTML = '<h3 class="font-bold">Mes publications</h3>';
+        if (!data?.length) box.innerHTML += '<p class="text-xs text-slate-400">Tu n’as pas encore publié de contenu.</p>';
+        else data.forEach(p => {
+          const item = document.createElement('article');
+          item.className = 'border-t border-slate-700 pt-3';
+          const h = document.createElement('h4'); h.className='font-bold text-sm'; h.textContent=p.title;
+          const d = document.createElement('p'); d.className='text-xs text-slate-300 mt-1'; d.textContent=p.description || p.category || '';
+          item.append(h,d);
+          if (p.image_url) { const img=document.createElement('img'); img.src=p.image_url; img.className='rounded-xl max-h-64 object-cover mt-2'; img.alt=p.title; item.append(img); }
+          if (p.video_url) { const v=document.createElement('video'); v.src=p.video_url; v.controls=true; v.className='rounded-xl w-full mt-2'; item.append(v); }
+          box.append(item);
+        });
+        section.append(box);
+      }
+      function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      }
+      function switchTab(tab) {
+        ['explore','reels','lidar','escrow','chat','profile','market','publish','menu'].forEach(t => {
+          const el=document.getElementById('tab-'+t), btn=document.getElementById('btn-'+t);
+          if(el) el.classList.add('hidden');
+          if(btn) { btn.classList.remove('text-brand-500','font-bold','text-orange-400'); btn.classList.add('text-slate-400'); }
+        });
+        const target=document.getElementById('tab-'+tab);
+        if(target) target.classList.remove('hidden');
+        const active=document.getElementById('btn-'+tab);
+        if(active) { active.classList.remove('text-slate-400'); active.classList.add('text-orange-400','font-bold'); }
+        if(tab==='profile' && manasUser) { loadMyProfile(); loadPublications(); }
+        if(tab==='lidar' && !window.threeLoaded) { init3D(); window.threeLoaded=true; }
+      }
+      function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+      function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+
+      async function sendChatMessage() {
+        const input=document.getElementById('chat-input');
+        if(!manasUser) { openAuthModal(); return; }
+        const receiver = prompt('Saisis l’UUID Supabase du destinataire pour démarrer cette conversation :');
+        if(!receiver) return;
+        const content=input.value.trim();
+        if(!content) return showNotice('Écris un message avant de l’envoyer.');
+        const { error } = await db.from('messages').insert({sender_id:manasUser.id,receiver_id:receiver,content});
+        if(error) return showNotice('Message non envoyé : '+error.message);
+        input.value='';
+        showNotice('Message envoyé.');
+      }
+      async function init3D() {
+        const container=document.getElementById('canvas-3d');
+        if(!container || !window.THREE) return;
+        const scene=new THREE.Scene(); scene.background=new THREE.Color(0x020617);
+        const camera=new THREE.PerspectiveCamera(60,container.clientWidth/container.clientHeight,0.1,1000); camera.position.set(0,3,5);
+        const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setSize(container.clientWidth,container.clientHeight); container.appendChild(renderer.domElement);
+        const cube=new THREE.Mesh(new THREE.BoxGeometry(2,2,2),new THREE.MeshBasicMaterial({color:0x06b6d4,wireframe:true})); scene.add(cube);
+        function animate(){requestAnimationFrame(animate);cube.rotation.x+=0.01;cube.rotation.y+=0.01;renderer.render(scene,camera);} animate();
+      }
+      document.getElementById('auth-modal').querySelector('.glass-card').insertAdjacentHTML('beforeend','<button type="button" onclick="signUpManas()" class="w-full border border-slate-600 py-2.5 rounded-xl text-xs font-bold">Créer un compte</button>');
+      db.auth.onAuthStateChange((_event, session) => { manasUser=session?.user||null; updateAuthButton(); });
+      initManas();
     </script>
 </body>
 </html>

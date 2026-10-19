@@ -218,20 +218,32 @@
         if (!email || !password) return showNotice('Saisis ton adresse e-mail et ton mot de passe.');
         const button = document.querySelector('#auth-modal button[onclick="handleLogin()"]');
         if (button) { button.disabled = true; button.textContent = 'Connexion…'; }
+        let user;
         try {
           const { data, error } = await db.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          manasUser = data.user;
-          await ensureProfile();
+          if (error) {
+            const msg = /invalid login credentials/i.test(error.message)
+              ? 'Adresse e-mail ou mot de passe incorrect. Vérifie l’adresse exacte ou utilise « Mot de passe oublié ? ».'
+              : error.message;
+            return showNotice('Connexion impossible : ' + msg);
+          }
+          user = data.user;
+          manasUser = user;
           closeAuthModal();
           updateAuthButton();
-          await loadMyProfile();
-          await loadPublications();
           showNotice('Connexion réussie. Bienvenue sur MANAS !');
         } catch (e) {
-          showNotice('Connexion impossible : ' + (e.message || 'vérifie tes identifiants et la configuration Auth Supabase.'));
+          return showNotice('Erreur pendant la connexion : ' + (e.message || 'réessaie dans un instant.'));
         } finally {
           if (button) { button.disabled = false; button.textContent = 'Se connecter'; }
+        }
+        try {
+          await ensureProfile();
+          await loadMyProfile();
+          await loadPublications();
+        } catch (e) {
+          console.error('Session active mais profil MANAS non chargé:', e);
+          showNotice('Tu es connecté, mais ton profil n’a pas pu être chargé. La connexion est active ; vérifie les permissions de la table profiles.');
         }
       }
       async function resetManasPassword() {

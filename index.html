@@ -1,211 +1,263 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr" class="dark h-full">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#070b11">
-<title>MANAS — Le premier réseau social camerounais</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = { darkMode: 'class', theme: { extend: { colors: {
-  brand: { 400: '#ff8a3d', 500: '#ff6a1a', 600: '#f04e0c' },
-  ink: { 950: '#070b11', 900: '#0d131c', 800: '#141c28', 700: '#1e2836' }
-}, fontFamily: { sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'] } } } };
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/lucide@0.451.0/dist/umd/lucide.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<style>
-  body { -webkit-tap-highlight-color: transparent; }
-  .card { background: #0d131c; border: 1px solid rgba(255,255,255,.07); }
-  .fab { background: linear-gradient(135deg, #ff7a1a, #f0360c); box-shadow: 0 6px 20px rgba(255,90,20,.45); }
-  .btn { background: linear-gradient(90deg, #ff6a1a, #f0360c); }
-  .hide-sb::-webkit-scrollbar { display: none; }
-  .tap:active { transform: scale(.96); }
-  .ph { background: linear-gradient(135deg, #1e2836, #2b1a12); }
-  .logo-c { background: conic-gradient(from 200deg, #ff8a3d, #f0360c, #ff8a3d); -webkit-mask: radial-gradient(circle 9px at 62% 50%, transparent 98%, #000 100%); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MANAS — Global OS Artisans & BTP</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            500: '#f97316',
+                            600: '#ea580c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Three.js pour le scan 3D LiDAR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .gradient-text { background: linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .active-tap:active { transform: scale(0.96); transition: transform 0.1s ease; }
+    </style>
 </head>
-<body class="bg-ink-950 text-slate-100 font-sans antialiased">
-<div id="shell" class="mx-auto max-w-md min-h-[100dvh] relative bg-ink-950">
-  <main id="app" class="pb-24"></main>
-  <nav id="nav" class="fixed bottom-0 inset-x-0 mx-auto max-w-md bg-ink-900/95 backdrop-blur border-t border-white/10 z-30 px-2 pt-2 pb-[max(.5rem,env(safe-area-inset-bottom))] grid grid-cols-5 items-end"></nav>
-  <div id="sheet" class="hidden fixed inset-0 z-40 bg-black/70 items-end justify-center"></div>
-  <div id="toast" class="hidden fixed top-4 inset-x-4 mx-auto max-w-sm z-50 bg-ink-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-center"></div>
-</div>
+<body class="bg-slate-950 text-slate-100 min-h-[100dvh] flex flex-col justify-between pb-20">
 
-<script>);
-const SUPABASE_URL = 'https://qdzgywqocpyijxyjjiof.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_dWYtPG6poRu2URshRlsb4Q_1Nlay06f';
-const CATEGORIES = [
-  { id: 'Services', icon: 'wrench', color: 'bg-sky-500' }, { id: 'Restaurants', icon: 'utensils', color: 'bg-emerald-700' },
-  { id: 'Boutiques', icon: 'shopping-bag', color: 'bg-rose-500' }, { id: 'Immobilier', icon: 'building-2', color: 'bg-amber-400' }
-];
-const CITIES = ['Toutes les villes', 'Yaoundé', 'Douala'];
-const TABS = [
-  { id: 'home', icon: 'house', label: 'Accueil' }, { id: 'reels', icon: 'clapperboard', label: 'Reels' }, { id: 'create', fab: true },
-  { id: 'messages', icon: 'message-circle', label: 'Messages' }, { id: 'profile', icon: 'user', label: 'Profil' }
-];
-const IMG_FALLBACK = 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=800&q=70';
-const DEMO = { // affiché uniquement si la base est injoignable
-  annonces: [
-    { id: 0, title: 'Le Bon Goût', category: 'Restaurants', city: 'Yaoundé', note_moyenne: 4.8, verified: true, image_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=70' },
-    { id: 0, title: 'MboaStyle', category: 'Boutiques', city: 'Douala', note_moyenne: 4.7, verified: true, image_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&q=70' }
-  ]
-};
+    <!-- HEADER -->
+    <header class="sticky top-0 z-40 glass border-b border-slate-800/80 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <i data-lucide="layers" class="w-4 h-4 text-white"></i>
+            </div>
+            <span class="text-lg font-extrabold tracking-tight gradient-text">MANAS</span>
+            <span class="text-[9px] uppercase px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">OS</span>
+        </div>
 
-/* ============ 2. UTILITAIRES ============ */
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const isUuid = s => /^[0-9a-f-]{36}$/i.test(s || '');
-const fcfa = n => n == null ? 'Prix sur demande' : Number(n).toLocaleString('fr-FR') + ' FCFA';
-const ago = d => { const m = Math.max(1, Math.round((Date.now() - new Date(d)) / 60000)); return m < 60 ? `${m} min` : m < 1440 ? `${Math.round(m / 60)} h` : `${Math.round(m / 1440)} j`; };
-const initials = n => (n || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-const cleanQuery = q => (q || '').replace(/[%,()*\\]/g, ' ').trim().slice(0, 60);
-const toast = msg => { const t = $('toast'); t.textContent = msg; t.classList.remove('hidden'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.add('hidden'), 2800); };
+        <button onclick="openAuthModal()" id="auth-btn" class="active-tap bg-gradient-to-r from-brand-600 to-brand-500 px-3.5 py-2 rounded-xl text-xs font-bold text-white shadow-lg flex items-center space-x-1">
+            <i data-lucide="user" class="w-3.5 h-3.5"></i>
+            <span id="auth-btn-text">Connexion</span>
+        </button>
+    </header>
 
-/* ============ 3. ACCÈS DONNÉES (repository Supabase) ============ */
-// Renvoie `fallback` si la requête échoue, et signale le mode hors ligne.
-async function live(run, fallback) {
-  try { const { data, error } = await run(); if (error) throw error; return data ?? fallback; }
-  catch (e) { console.warn('[MANAS]', e.message || e); App.offline = true; return fallback; }
-}
-const count = (table, col, val) => live(async () => { const r = await db.from(table).select('*', { count: 'exact', head: true }).eq(col, val); return { data: r.count, error: r.error }; }, 0);
-const ANNONCE_COLS = 'id,title,category,price,city,description,image_url,video_url,note_moyenne,verified,user_id,created_at';
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4">
 
-const Api = {
-  annonces({ cat = 'Tous', city, q, video = false, ids, owner, limit = 20 } = {}) {
-    return live(() => {
-      let r = db.from('annonces').select(ANNONCE_COLS).eq('vendu', false).order('created_at', { ascending: false }).limit(limit);
-      if (cat !== 'Tous') r = r.ilike('category', `%${cat}%`);
-      if (city && !city.startsWith('Toutes')) r = r.ilike('city', `%${city}%`);
-      if (q) r = r.or(`title.ilike.%${q}%,description.ilike.%${q}%`);
-      if (video) r = r.not('video_url', 'is', null);
-      if (ids) r = r.in('id', ids);
-      if (owner) r = r.eq('user_id', owner);
-      return r;
-    }, null);
-  },
-  async profiles(ids) {
-    ids = [...new Set(ids.filter(isUuid))]; if (!ids.length) return {};
-    const rows = await live(() => db.from('profiles').select('id,full_name,avatar_url,bio,city').in('id', ids), []);
-    return Object.fromEntries(rows.map(r => [r.id, r]));
-  },
-  stories: () => live(() => db.from('artisan_stories').select('id,artisan_id,media_url,caption,created_at').gt('expires_at', new Date().toISOString()).order('created_at', { ascending: false }).limit(20), []),
-  myIds: (table, col, me) => me ? live(() => db.from(table).select(col).eq('user_id', me), []).then(r => new Set(r.map(x => x[col]))) : Promise.resolve(new Set()),
-  async toggle(table, col, id, on) { // favoris / reel_likes
-    const q = on ? db.from(table).delete().eq('user_id', App.user.id).eq(col, id) : db.from(table).insert({ [col]: id });
-    const { error } = await q; return !error;
-  },
-  following: (me, id) => me && isUuid(id) ? live(() => db.from('abonnements').select('followed_id').eq('follower_id', me).eq('followed_id', id), []).then(r => r.length > 0) : false,
-  async toggleFollow(id, on) {
-    const q = on ? db.from('abonnements').delete().eq('follower_id', App.user.id).eq('followed_id', id) : db.from('abonnements').insert({ followed_id: id });
-    return !(await q).error;
-  },
-  threads: me => live(() => db.from('messages').select('id,sender_id,receiver_id,content,created_at,read_at').or(`sender_id.eq.${me},receiver_id.eq.${me}`).order('created_at', { ascending: false }).limit(200), []),
-  thread: (me, o) => live(() => db.from('messages').select('id,sender_id,content,created_at').or(`and(sender_id.eq.${me},receiver_id.eq.${o}),and(sender_id.eq.${o},receiver_id.eq.${me})`).order('created_at').limit(100), []),
-  send: async (to, content) => !(await db.from('messages').insert({ sender_id: App.user.id, receiver_id: to, content })).error,
-  markRead: (me, o) => db.from('messages').update({ read_at: new Date().toISOString() }).eq('receiver_id', me).eq('sender_id', o).is('read_at', null),
-  unread: async me => me ? (await db.from('messages').select('id', { count: 'exact', head: true }).eq('receiver_id', me).is('read_at', null)).count || 0 : 0,
-  publish: row => db.from('annonces').insert(row)
-};
+        <!-- TAB 1 : EXPLORER -->
+        <section id="tab-explore" class="space-y-4">
+            <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2">
+                <span class="text-[10px] text-brand-400 font-bold uppercase tracking-widest">Plateforme BTP & Artisans</span>
+                <h1 class="text-xl font-black">Trouvez un artisan certifié</h1>
+                <p class="text-xs text-slate-400">Séquestre sécurisé, modélisation 3D et suivi de chantier.</p>
+            </div>
 
-/* ============ 4. COMPOSANTS (fonctions pures → HTML) ============ */
-const icon = (n, c = 'w-5 h-5') => `<i data-lucide="${n}" class="${c}"></i>`;
-const photo = (src, c = '') => `<div class="ph ${c}">${src ? `<img src="${esc(src)}" alt="" loading="lazy" class="w-full h-full object-cover" onerror="this.remove()">` : ''}</div>`;
-const avatar = (name, size = 'w-11 h-11', ring = false, url = '') => url
-  ? `<div class="${size} shrink-0 rounded-full overflow-hidden ${ring ? 'ring-2 ring-brand-500 ring-offset-2 ring-offset-ink-950' : ''}">${photo(url, 'w-full h-full')}</div>`
-  : `<div class="${size} shrink-0 rounded-full grid place-items-center text-xs font-bold bg-gradient-to-br from-brand-400 to-rose-700 ${ring ? 'ring-2 ring-brand-500 ring-offset-2 ring-offset-ink-950' : ''}">${esc(initials(name))}</div>`;
-const verified = () => icon('badge-check', 'w-3.5 h-3.5 text-sky-400 inline');
-const logo = (s = 'text-lg') => `<div class="flex items-center gap-1.5"><div class="logo-c w-7 h-7 rounded-full"></div><span class="${s} font-extrabold">MANAS</span></div>`;
-const chip = (label, active, action, v) => `<button data-action="${action}" data-v="${esc(v ?? label)}" class="tap px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${active ? 'bg-brand-500 text-white' : 'bg-ink-800 text-slate-300'}">${esc(label)}</button>`;
-const topBar = (right = '') => `<header class="sticky top-0 z-20 bg-ink-950/90 backdrop-blur px-4 py-3 flex items-center justify-between">${logo()}<div class="flex items-center gap-3">${right}</div></header>`;
-const backBar = (title, to = 'home', right = '') => `<header class="sticky top-0 z-20 bg-ink-950/90 backdrop-blur px-4 py-3 flex items-center justify-between"><div class="flex items-center gap-3"><button data-nav="${to}" class="tap">${icon('arrow-left')}</button><h1 class="font-bold">${esc(title)}</h1></div>${right}</header>`;
-const empty = (msg, cta = '') => `<div class="px-6 py-16 text-center text-sm text-slate-400 space-y-4"><p>${msg}</p>${cta}</div>`;
-const loginCta = (msg = 'Connecte-toi pour continuer.') => empty(msg, `<button data-action="authopen" class="btn tap rounded-xl px-6 py-2.5 font-bold text-white">Se connecter</button>`);
-const offlineBanner = () => App.offline ? `<p class="mx-4 mb-3 text-[11px] text-amber-300 bg-amber-500/10 rounded-lg px-3 py-2">Connexion au serveur impossible : données de démonstration affichées.</p>` : '';
+            <div id="artisans-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-sm text-white">Atelier Nlong</h4>
+                        <span class="bg-brand-500/20 text-brand-400 text-[10px] px-2 py-0.5 rounded-full font-bold">Vérifié</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Menuiserie & Agencement d'intérieur • Bastos, Yaoundé</p>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                        <span class="text-xs font-bold text-brand-400">15 000 FCFA</span>
+                        <button onclick="switchTab('chat')" class="bg-brand-500 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white active-tap">Contacter</button>
+                    </div>
+                </div>
 
-function marketCard(a, favs) {
-  const fav = favs.has(a.id);
-  return `<article data-nav="profile" data-id="${esc(a.user_id || '')}" class="card rounded-2xl overflow-hidden tap">
-    <div class="relative">${photo(a.image_url, 'h-28')}
-      ${a.note_moyenne ? `<span class="absolute bottom-1.5 left-2 text-[11px] bg-black/60 rounded px-1.5">★ ${Number(a.note_moyenne).toFixed(1).replace('.', ',')}</span>` : ''}
-      ${a.id ? `<button data-action="fav" data-id="${a.id}" class="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-black/50 grid place-items-center ${fav ? 'text-rose-500' : 'text-white'}">${icon('heart', `w-4 h-4 ${fav ? 'fill-current' : ''}`)}</button>` : ''}</div>
-    <div class="p-2.5 text-xs"><b>${esc(a.title)}</b> ${a.verified ? verified() : ''}<p class="text-slate-400 text-[10px]">${esc(a.category)} · ${esc(a.city)}</p>
-      <p class="text-brand-400 font-semibold text-[11px] mt-1">${a.price != null ? fcfa(a.price) : ''}</p></div></article>`;
-}
+                <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-sm text-white">BatiPro BTP</h4>
+                        <span class="bg-brand-500/20 text-brand-400 text-[10px] px-2 py-0.5 rounded-full font-bold">Certifié</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Gros œuvre & Maçonnerie générale • Odza, Yaoundé</p>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                        <span class="text-xs font-bold text-brand-400">50 000 FCFA</span>
+                        <button onclick="switchTab('chat')" class="bg-brand-500 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white active-tap">Contacter</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-/* ============ 5. VUES (asynchrones : chacune charge ses données) ============ */
-const Views = {
-  async home(s) {
-    const [list, stories, favs] = await Promise.all([Api.annonces({ cat: s.filter, city: s.city, q: s.q, limit: 6 }), Api.stories(), Api.myIds('favoris', 'annonce_id', App.user?.id)]);
-    const items = list ?? DEMO.annonces;
-    const names = await Api.profiles([...stories.map(x => x.artisan_id), ...items.map(x => x.user_id)]);
-    const seen = new Set();
-    const storyHtml = stories.filter(x => !seen.has(x.artisan_id) && seen.add(x.artisan_id)).map(x => {
-      const p = names[x.artisan_id] || {};
-      return `<button data-action="story" data-v="${esc(x.media_url)}" data-cap="${esc(x.caption || '')}" class="tap flex flex-col items-center gap-1 w-16 shrink-0 text-[10px] text-slate-400">${avatar(p.full_name, 'w-14 h-14', true, p.avatar_url)}<span class="truncate w-full text-center">${esc(p.full_name || 'Artisan')}</span></button>`;
-    }).join('');
-    const cats = CATEGORIES.map(c => `<button data-nav="market" data-filter="${c.id}" class="tap flex flex-col items-center gap-1.5 text-[11px] text-slate-300"><span class="w-14 h-14 rounded-2xl grid place-items-center ${c.color}">${icon(c.icon, 'w-7 h-7 text-white')}</span>${c.id}</button>`).join('');
-    const feed = items.slice(0, 4).map(a => { const p = names[a.user_id] || {}; return `
-      <article data-nav="profile" data-id="${esc(a.user_id || '')}" class="card rounded-2xl p-3 space-y-2">
-        <div class="flex items-center gap-2">${avatar(p.full_name || a.title, 'w-9 h-9', false, p.avatar_url)}<div class="text-xs"><b>${esc(p.full_name || a.title)}</b><div class="text-slate-500 text-[10px]">${a.created_at ? ago(a.created_at) : ''}</div></div></div>
-        <p class="text-xs"><b>${esc(a.title)}</b>${a.description ? ' — ' + esc(a.description.slice(0, 140)) : ''}</p>
-        ${a.image_url ? photo(a.image_url, 'h-40 rounded-xl overflow-hidden') : ''}</article>`; }).join('');
-    const me = App.me;
-    const right = `<button data-action="focusq" class="tap">${icon('search')}</button><button data-nav="messages" class="tap relative">${icon('bell')}${App.unread ? '<span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-brand-500"></span>' : ''}</button>` +
-      (App.user ? `<button data-nav="menu" class="tap">${avatar(me?.full_name || App.user.email, 'w-8 h-8', false, me?.avatar_url)}</button>` : `<button data-action="authopen" class="btn tap rounded-lg px-3 py-1.5 text-xs font-bold">Connexion</button>`);
-    return `${topBar(right)}${offlineBanner()}<div class="px-4 space-y-5">
-      <section class="card rounded-2xl overflow-hidden relative flex"><div class="p-4 w-3/5 z-10"><h2 class="font-extrabold leading-tight">Découvre, partage, consomme local</h2><p class="text-[11px] text-slate-400 mt-2">Tout ce dont tu as besoin au Cameroun, au même endroit !</p></div>${photo(IMG_FALLBACK, 'absolute right-0 inset-y-0 w-2/5 opacity-80')}</section>
-      <label class="flex items-center gap-2 bg-ink-800 rounded-xl px-3 py-2.5 text-xs text-slate-400">${icon('search', 'w-4 h-4')}<input id="q" value="${esc(s.q || '')}" class="bg-transparent flex-1 outline-none text-slate-100" placeholder="Rechercher un service, un produit, un artisan…"></label>
-      <button data-action="city" class="tap flex items-center gap-2 bg-ink-800 rounded-xl px-3 py-2 text-xs font-semibold">${icon('map-pin', 'w-4 h-4 text-brand-500')}${esc(s.city)}${icon('chevron-down', 'w-4 h-4')}</button>
-      <div class="grid grid-cols-4 gap-2">${cats}</div>
-      <section><div class="flex justify-between text-xs mb-2"><b>Stories / Statuts</b><span class="text-brand-500">Voir tout ›</span></div>
-        <div class="flex gap-3 overflow-x-auto hide-sb"><button data-action="create" class="tap flex flex-col items-center gap-1 w-16 shrink-0 text-[10px] text-slate-400">${avatar(me?.full_name || '+', 'w-14 h-14', false, me?.avatar_url)}<span>Votre statut</span></button>${storyHtml}</div></section>
-      <section class="space-y-3">${feed || empty('Aucune publication pour le moment.')}</section></div>`;
-  },
+        <!-- TAB 2 : REELS -->
+        <section id="tab-reels" class="hidden max-w-sm mx-auto space-y-3">
+            <div class="relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 h-[65dvh] flex flex-col justify-end p-4">
+                <img src="https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover opacity-60">
+                <div class="relative z-10 space-y-2">
+                    <h4 class="font-bold text-sm text-white">Atelier Nlong</h4>
+                    <p class="text-xs text-slate-300">Fabrication sur mesure d'une cuisine américaine moderne à Yaoundé.</p>
+                    <button onclick="switchTab('chat')" class="w-full bg-brand-500 py-2 rounded-xl text-xs font-bold text-white active-tap">Contacter l'artisan</button>
+                </div>
+            </div>
+        </section>
 
-  async market(s) {
-    const [list, favs] = await Promise.all([Api.annonces({ cat: s.filter, city: s.city, q: s.q, limit: 30 }), Api.myIds('favoris', 'annonce_id', App.user?.id)]);
-    const items = list ?? DEMO.annonces;
-    const chips = ['Tous', ...CATEGORIES.map(c => c.id)].map(c => chip(c, s.filter === c, 'filter')).join('');
-    return `${backBar('Marché')}${offlineBanner()}<div class="px-4 space-y-4"><div class="flex gap-2 overflow-x-auto hide-sb">${chips}</div>
-      <div class="grid grid-cols-2 gap-3">${items.map(a => marketCard(a, favs)).join('') || `<div class="col-span-2">${empty('Aucune annonce dans cette catégorie.')}</div>`}</div></div>`;
-  },
+        <!-- TAB 3 : SCAN 3D LIDAR -->
+        <section id="tab-lidar" class="hidden space-y-4">
+            <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-2">Scan 3D & Inspection</h2>
+                <div id="canvas-3d" class="w-full h-64 bg-slate-950 rounded-xl overflow-hidden border border-slate-800"></div>
+            </div>
+        </section>
 
-  async favs() {
-    if (!App.user) return backBar('Mes favoris', 'menu') + loginCta('Connecte-toi pour voir tes favoris.');
-    const favs = await Api.myIds('favoris', 'annonce_id', App.user.id);
-    const items = favs.size ? await Api.annonces({ ids: [...favs], limit: 50 }) ?? [] : [];
-    return `${backBar('Mes favoris', 'menu')}<div class="px-4"><div class="grid grid-cols-2 gap-3">${items.map(a => marketCard(a, favs)).join('') || `<div class="col-span-2">${empty('Aucun favori. Touche le cœur d’une annonce pour l’ajouter.')}</div>`}</div></div>`;
-  },
+        <!-- TAB 4 : SÉQUESTRE -->
+        <section id="tab-escrow" class="hidden space-y-4">
+            <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
+                <h2 class="text-base font-bold">Smart Contract Escrow</h2>
+                <div class="p-3 bg-slate-900 rounded-xl flex justify-between items-center text-xs">
+                    <span>Jalon 1 : Fondations</span>
+                    <span class="text-emerald-400 font-bold">✓ Libéré</span>
+                </div>
+                <div class="p-3 bg-slate-900 rounded-xl flex justify-between items-center text-xs">
+                    <span>Jalon 2 : Finitions bois</span>
+                    <span class="text-brand-400 font-bold">🔒 En séquestre</span>
+                </div>
+            </div>
+        </section>
 
-  async reels() {
-    const [list, likedSet] = await Promise.all([Api.annonces({ video: true, limit: 10 }), Api.myIds('reel_likes', 'annonce_id', App.user?.id)]);
-    const reels = list ?? [];
-    if (!reels.length) return topBar() + empty('Aucun reel pour le moment. Sois le premier à en publier !');
-    const ids = reels.map(r => r.id);
-    const [likes, comments, names] = await Promise.all([
-      live(() => db.from('reel_likes').select('annonce_id').in('annonce_id', ids), []), live(() => db.from('reel_comments').select('reel_id').in('reel_id', ids).eq('status', 'approved'), []),
-      Api.profiles(reels.map(r => r.user_id))]);
-    const tally = (rows, k) => rows.reduce((m, r) => (m[r[k]] = (m[r[k]] || 0) + 1, m), {});
-    const nl = tally(likes, 'annonce_id'), nc = tally(comments, 'reel_id');
-    const slides = reels.map(r => { const p = names[r.user_id] || {}, liked = likedSet.has(r.id); return `
-      <section class="snap-start h-full relative overflow-hidden">
-        <video src="${esc(r.video_url)}" poster="${esc(r.image_url || '')}" loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover"></video>
-        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40 pointer-events-none"></div>
-        <div class="absolute right-3 bottom-28 z-10 flex flex-col items-center gap-5 text-[11px]">
-          <button data-action="like" data-id="${r.id}" class="tap text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center ${liked ? 'text-rose-500' : ''}">${icon('heart', `w-6 h-6 ${liked ? 'fill-current' : ''}`)}</span>${nl[r.id] || 0}</button>
-          <div class="text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center">${icon('message-circle')}</span>${nc[r.id] || 0}</div>
-          <button data-action="share" data-id="${r.id}" data-v="${esc(r.title)}" class="tap text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center">${icon('share-2')}</span>Partager</button></div>
-        <div class="absolute bottom-6 inset-x-4 right-20 z-10 space-y-2 text-xs">
-          <span class="inline-flex items-center gap-1 bg-black/50 rounded-full px-2 py-1">${icon('map-pin', 'w-3 h-3')}${esc(r.city || 'Cameroun')}</span>
-          <button data-nav="profile" data-id="${esc(r.user_id || '')}" class="flex items-center gap-2 font-bold">@${esc((p.full_name || r.title).replace(/\s+/g, '_').toLowerCase())}</button>
-          <p>${esc(r.title)}${r.description ? ' — ' + esc(r.description.slice(0, 100)) : ''}</p></div></section>`; }).join('');
-    return `<div class="absolute top-0 inset-x-0 z-20 flex justify-center gap-5 pt-4 text-sm pointer-events-none"><b class="border-b-2 border-brand-500 pb-1">Pour toi</b><span class="text-slate-300">Abonnements</span></div>
-      <div id="reel-scroll" class="h-[calc(100dvh-5rem)] overflow-y-scroll snap-y snap-mandatory hide-sb">${slides}</div>`;
-  },
+        <!-- TAB 5 : CHAT -->
+        <section id="tab-chat" class="hidden space-y-3">
+            <div class="glass-card rounded-2xl p-4 border border-slate-800 space-y-3">
+                <h4 class="font-bold text-xs">Messagerie — Atelier Nlong</h4>
+                <div id="chat-messages" class="bg-slate-900 p-3 rounded-xl text-xs space-y-2 h-44 overflow-y-auto">
+                    <p class="text-slate-300"><strong>Artisan :</strong> Bonjour ! Vos plans 3D sont validés.</p>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Votre message..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                    <button onclick="sendChatMessage()" class="bg-brand-500 px-4 py-2 rounded-xl text-xs font-bold text-white active-tap">Envoyer</button>
+                </div>
+            </div>
+        </section>
 
-  async profile(s) {
-    const id = s.pid || App.user?.id;
-    if (!id) return topB
+    </main>
+
+    <!-- BOTTOM NAVBAR MOBILE -->
+    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800 px-2 py-2 flex justify-around items-center z-50">
+        <button onclick="switchTab('explore')" id="btn-explore" class="flex flex-col items-center text-brand-500 text-[10px] font-bold">
+            <i data-lucide="compass" class="w-5 h-5 mb-0.5"></i> Explorer
+        </button>
+        <button onclick="switchTab('reels')" id="btn-reels" class="flex flex-col items-center text-slate-400 text-[10px]">
+            <i data-lucide="video" class="w-5 h-5 mb-0.5"></i> Réels
+        </button>
+        <button onclick="switchTab('lidar')" id="btn-lidar" class="flex flex-col items-center text-slate-400 text-[10px]">
+            <i data-lucide="scan" class="w-5 h-5 mb-0.5"></i> Scan 3D
+        </button>
+        <button onclick="switchTab('escrow')" id="btn-escrow" class="flex flex-col items-center text-slate-400 text-[10px]">
+            <i data-lucide="shield" class="w-5 h-5 mb-0.5"></i> Séquestre
+        </button>
+        <button onclick="switchTab('chat')" id="btn-chat" class="flex flex-col items-center text-slate-400 text-[10px]">
+            <i data-lucide="message-square" class="w-5 h-5 mb-0.5"></i> Chat
+        </button>
+    </nav>
+
+    <!-- MODAL AUTH -->
+    <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 max-w-xs w-full space-y-4 relative">
+            <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <h3 class="text-lg font-bold text-center gradient-text">Connexion MANAS</h3>
+            <input type="email" id="auth-email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+            <input type="password" id="auth-password" placeholder="Mot de passe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+            <button onclick="handleLogin()" class="w-full bg-brand-500 py-2.5 rounded-xl text-xs font-bold text-white shadow-lg active-tap">Se connecter</button>
+        </div>
+    </div>
+
+    <!-- LOGIC -->
+    <script>
+        lucide.createIcons();
+
+        function switchTab(tab) {
+            ['explore', 'reels', 'lidar', 'escrow', 'chat'].forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                const btn = document.getElementById('btn-' + t);
+                if(el) el.classList.add('hidden');
+                if(btn) {
+                    btn.classList.remove('text-brand-500', 'font-bold');
+                    btn.classList.add('text-slate-400');
+                }
+            });
+
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tab);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('text-brand-500', 'font-bold');
+            }
+
+            if (tab === 'lidar' && !window.threeLoaded) {
+                init3D();
+                window.threeLoaded = true;
+            }
+        }
+
+        function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+
+        function handleLogin() {
+            const email = document.getElementById('auth-email').value;
+            if(!email) {
+                alert("Veuillez saisir votre adresse email.");
+                return;
+            }
+            document.getElementById('auth-btn-text').innerText = "Mon Compte";
+            alert("Connexion réussie ! Bienvenue " + email);
+            closeAuthModal();
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const box = document.getElementById('chat-messages');
+            if(input.value.trim() !== '') {
+                box.innerHTML += `<p class="text-brand-400"><strong>Vous :</strong> ${input.value}</p>`;
+                input.value = '';
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        function init3D() {
+            const container = document.getElementById('canvas-3d');
+            if(!container) return;
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x020617);
+            const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 3, 5);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            const geo = new THREE.BoxGeometry(2, 2, 2);
+            const mat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true });
+            const cube = new THREE.Mesh(geo, mat);
+            scene.add(cube);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>

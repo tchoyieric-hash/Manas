@@ -1,435 +1,75 @@
-<!DOCTYPE html>
-<html lang="fr" class="dark h-full">
+<!doctype html>
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MANAS — Le réseau qui rapproche le Cameroun</title>
-    <meta name="theme-color" content="#07090f">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            500: '#f97316',
-                            600: '#ea580c',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- Three.js pour le scan 3D LiDAR -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .gradient-text { background: linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .active-tap:active { transform: scale(0.96); transition: transform 0.1s ease; }
-    </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05080e"><title>CamerLink — Le Cameroun plus proche que jamais</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#05080e;--panel:#0b1420;--panel2:#101e2b;--line:#20303d;--muted:#a3b0bd;--orange:#ff4a20;--gold:#ffb11b;--white:#f7f9fc}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--white);font:14px Inter,system-ui,-apple-system,Segoe UI,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer;color:inherit;border:0}a{color:inherit}.app{max-width:1240px;margin:auto;min-height:100dvh;padding-bottom:80px}.top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#05080ef0;backdrop-filter:blur(18px);z-index:10}.brand{display:flex;align-items:center;gap:10px;font-size:25px;font-weight:900;letter-spacing:-1px}.logo{width:38px;height:38px;border:5px solid var(--orange);border-right-color:transparent;border-radius:50%;display:grid;place-items:center;color:var(--gold);font-size:20px}.brand span{color:var(--orange)}.sub{font-size:11px;color:var(--muted);margin-top:3px}.auth{background:linear-gradient(100deg,var(--orange),#ff7417);padding:10px 15px;border-radius:20px;font-weight:800}.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding:18px}.screen{display:none}.screen.active{display:block}.hero{padding:24px;border:1px solid var(--line);border-radius:22px;background:radial-gradient(ellipse at top right,#40201b 0%,transparent 45%),linear-gradient(135deg,#101c2a,#080d15);margin-bottom:18px}.eyebrow{color:var(--orange);font-weight:800;text-transform:uppercase;letter-spacing:2px;font-size:10px}.hero h1{font-size:clamp(24px,5vw,42px);line-height:1.08;margin:12px 0}.hero p,.muted{color:var(--muted)}.search{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.field{background:#111f2c;border:1px solid #263846;border-radius:13px;padding:12px;color:#fff;min-width:0}.search .field{flex:1;min-width:160px}.pillrow{display:flex;gap:8px;overflow:auto;padding:3px 0 12px}.pill{background:#17232e;border:1px solid #263846;border-radius:22px;padding:9px 14px;white-space:nowrap}.pill.active{background:var(--orange);border-color:var(--orange)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{background:linear-gradient(150deg,#101e2b,#09111a);border:1px solid var(--line);border-radius:17px;overflow:hidden}.cardbody{padding:13px}.cover{height:140px;background:linear-gradient(135deg,#253a4a,#6a3927);display:grid;place-items:center;font-size:45px;overflow:hidden}.cover img,.media img,.avatar img{width:100%;height:100%;object-fit:cover}.name{font-weight:800}.tiny{font-size:11px;color:var(--muted)}.orange{color:var(--orange)}.cta{background:linear-gradient(100deg,#ff321f,#ff7516);padding:10px 14px;border-radius:20px;font-weight:800}.secondary{background:#17232e;border:1px solid #293a49;padding:10px 13px;border-radius:20px;font-weight:700}.storyrow{display:flex;gap:13px;overflow:auto;padding:8px 0 18px}.story{min-width:62px;text-align:center;font-size:10px}.ring{width:55px;height:55px;border-radius:50%;padding:3px;background:linear-gradient(135deg,var(--gold),var(--orange));margin:0 auto 6px}.avatar{width:100%;height:100%;border-radius:50%;overflow:hidden;background:#263847;display:grid;place-items:center;font-weight:800}.post{margin-bottom:15px}.posthead{display:flex;align-items:center;gap:10px;padding:12px}.posthead .avatar{width:38px;height:38px}.postmedia{height:300px;background:#101c28;display:grid;place-items:center;overflow:hidden}.postmedia img,.postmedia video{width:100%;height:100%;object-fit:cover}.postactions{display:flex;justify-content:space-around;padding:12px;border-top:1px solid var(--line)}.profilehead{padding:20px;background:linear-gradient(145deg,#111f2b,#090e15);border:1px solid var(--line);border-radius:20px}.profiletop{display:flex;gap:15px;align-items:center}.profilepic{width:84px;height:84px;border-radius:50%;background:#253748;overflow:hidden;flex-shrink:0;border:3px solid var(--orange)}.stats{display:flex;justify-content:space-around;text-align:center;margin:18px 0}.stats b{display:block;font-size:18px}.profiletabs{display:flex;gap:8px;margin:14px 0}.marketimg{height:125px;display:grid;place-items:center;font-size:42px;background:#152331}.price{color:#8de3bd;font-weight:800}.list{display:flex;flex-direction:column;gap:8px}.listitem{padding:13px;background:#0d1823;border:1px solid var(--line);border-radius:14px;display:flex;gap:12px;align-items:center}.listitem .avatar{width:42px;height:42px;flex-shrink:0}.listitem .grow{flex:1;min-width:0}.msg{max-width:80%;padding:11px 13px;border-radius:15px;background:#152431;margin:8px 0}.msg.mine{background:#96351f;margin-left:auto}.composer{display:flex;gap:8px;margin-top:12px}.composer input{flex:1}.publish-types{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.type{padding:13px 4px;border-radius:15px;background:#142331;text-align:center;border:1px solid var(--line)}.type strong{display:block;font-size:23px}.textarea{width:100%;min-height:110px;resize:vertical}.menuitem{display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid var(--line);background:#0d1721}.menuitem:first-child{border-radius:15px 15px 0 0}.menuitem:last-child{border-radius:0 0 15px 15px}.bottom{position:fixed;bottom:0;left:0;right:0;z-index:20;background:#05080ef5;backdrop-filter:blur(20px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:8px max(8px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom))}.nav{width:min(900px,100%);display:grid;grid-template-columns:repeat(5,1fr);gap:3px}.nav button{display:flex;flex-direction:column;align-items:center;gap:4px;color:#a3b0bd;font-size:10px;background:transparent;padding:4px}.nav button.active{color:var(--orange)}.nav .plus{width:42px;height:42px;border-radius:50%;background:linear-gradient(100deg,#ff321f,#ff7516);font-size:26px;color:white;line-height:1;margin-top:-10px}.badge{font-size:10px;background:#193b30;color:#8de3bd;border-radius:8px;padding:4px 7px}.hidden{display:none!important}.empty{text-align:center;padding:32px 15px;color:var(--muted)}.footer{margin:25px 0 10px;padding:18px;border-top:1px solid var(--line);display:flex;justify-content:space-around;gap:12px;flex-wrap:wrap;color:#c2cbd2;font-size:12px}.modal{position:fixed;inset:0;background:#000b;z-index:50;display:grid;place-items:center;padding:18px}.modalbox{width:min(420px,100%);padding:22px;border-radius:22px;background:#0c1722;border:1px solid #293a49}.modalbox input{width:100%;margin:7px 0}.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:70;background:#182735;border:1px solid #3c5364;border-radius:12px;padding:12px 18px;max-width:90%;box-shadow:0 10px 35px #0008}.reelview{height:min(70dvh,700px);position:relative;background:#111;display:grid;place-items:center;overflow:hidden}.reelview video,.reelview img{width:100%;height:100%;object-fit:cover}.reeloverlay{position:absolute;inset:auto 12px 14px;display:flex;justify-content:space-between;align-items:end;text-shadow:0 2px 8px #000}.reelbuttons{display:flex;flex-direction:column;gap:15px;text-align:center}.reelbuttons button{background:#081018aa;border-radius:50%;padding:10px}.sectiontitle{font-size:19px;font-weight:900;margin:20px 0 12px}@media(min-width:760px){.layout{padding:24px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.cover{height:175px}.postmedia{height:420px}.bottom{position:sticky;bottom:0}.nav{grid-template-columns:repeat(5,1fr)}.hero{padding:34px}}@media(max-width:380px){.grid{grid-template-columns:1fr}.brand{font-size:21px}.publish-types{grid-template-columns:repeat(2,1fr)}}
+</style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-[100dvh] flex flex-col justify-between pb-20">
-
-    <!-- HEADER -->
-    <header class="sticky top-0 z-40 glass border-b border-slate-800/80 px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-500 to-purple-600 flex items-center justify-center shadow-lg">
-                <i data-lucide="layers" class="w-4 h-4 text-white"></i>
-            </div>
-            <span class="text-lg font-extrabold tracking-tight gradient-text">MANAS</span>
-            <span class="text-[9px] uppercase px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">OS</span>
-        </div>
-
-        <button onclick="openAuthModal()" id="auth-btn" class="active-tap bg-gradient-to-r from-brand-600 to-brand-500 px-3.5 py-2 rounded-xl text-xs font-bold text-white shadow-lg flex items-center space-x-1">
-            <i data-lucide="user" class="w-3.5 h-3.5"></i>
-            <span id="auth-btn-text">Connexion</span>
-        </button>
-    </header>
-
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4">
-
-        <!-- TAB 1 : EXPLORER -->
-        <section id="tab-explore" class="space-y-4">
-            <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2">
-                <span class="text-[10px] text-brand-400 font-bold uppercase tracking-widest">Le réseau social camerounais</span>
-                <h1 class="text-xl font-black">Découvre, partage et fais grandir ton univers</h1>
-                <p class="text-xs text-slate-400">Connecte-toi, partage tes moments, découvre des créateurs et trouve des commerces près de toi.</p>
-            </div>
-
-            <div id="artisans-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-sm text-white">Atelier Nlong</h4>
-                        <span class="bg-brand-500/20 text-brand-400 text-[10px] px-2 py-0.5 rounded-full font-bold">Vérifié</span>
-                    </div>
-                    <p class="text-xs text-slate-400">Menuiserie & Agencement d'intérieur • Bastos, Yaoundé</p>
-                    <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-                        <span class="text-xs font-bold text-brand-400">15 000 FCFA</span>
-                        <button onclick="switchTab('chat')" class="bg-brand-500 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white active-tap">Contacter</button>
-                    </div>
-                </div>
-
-                <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-sm text-white">BatiPro BTP</h4>
-                        <span class="bg-brand-500/20 text-brand-400 text-[10px] px-2 py-0.5 rounded-full font-bold">Certifié</span>
-                    </div>
-                    <p class="text-xs text-slate-400">Gros œuvre & Maçonnerie générale • Odza, Yaoundé</p>
-                    <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-                        <span class="text-xs font-bold text-brand-400">50 000 FCFA</span>
-                        <button onclick="switchTab('chat')" class="bg-brand-500 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white active-tap">Contacter</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 2 : REELS -->
-        <section id="tab-reels" class="hidden max-w-sm mx-auto space-y-3">
-            <div class="relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 h-[65dvh] flex flex-col justify-end p-4">
-                <img src="https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover opacity-60">
-                <div class="relative z-10 space-y-2">
-                    <h4 class="font-bold text-sm text-white">Atelier Nlong</h4>
-                    <p class="text-xs text-slate-300">Fabrication sur mesure d'une cuisine américaine moderne à Yaoundé.</p>
-                    <button onclick="switchTab('chat')" class="w-full bg-brand-500 py-2 rounded-xl text-xs font-bold text-white active-tap">Contacter l'artisan</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 3 : SCAN 3D LIDAR -->
-        <section id="tab-lidar" class="hidden space-y-4">
-            <div class="glass-card p-4 rounded-2xl border border-slate-800">
-                <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-2">Scan 3D & Inspection</h2>
-                <div id="canvas-3d" class="w-full h-64 bg-slate-950 rounded-xl overflow-hidden border border-slate-800"></div>
-            </div>
-        </section>
-
-        <!-- TAB 4 : SÉQUESTRE -->
-        <section id="tab-escrow" class="hidden space-y-4">
-            <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
-                <h2 class="text-base font-bold">Smart Contract Escrow</h2>
-                <div class="p-3 bg-slate-900 rounded-xl flex justify-between items-center text-xs">
-                    <span>Jalon 1 : Fondations</span>
-                    <span class="text-emerald-400 font-bold">✓ Libéré</span>
-                </div>
-                <div class="p-3 bg-slate-900 rounded-xl flex justify-between items-center text-xs">
-                    <span>Jalon 2 : Finitions bois</span>
-                    <span class="text-brand-400 font-bold">🔒 En séquestre</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 5 : CHAT -->
-        <section id="tab-chat" class="hidden space-y-3">
-            <div class="glass-card rounded-2xl p-4 border border-slate-800 space-y-3">
-                <h4 class="font-bold text-xs">Messagerie — Atelier Nlong</h4>
-                <div id="chat-messages" class="bg-slate-900 p-3 rounded-xl text-xs space-y-2 h-44 overflow-y-auto">
-                    <p class="text-slate-300"><strong>Artisan :</strong> Bonjour ! Vos plans 3D sont validés.</p>
-                </div>
-                <div class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="Votre message..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-                    <button onclick="sendChatMessage()" class="bg-brand-500 px-4 py-2 rounded-xl text-xs font-bold text-white active-tap">Envoyer</button>
-                </div>
-            </div>
-        </section>
-
-
-        <section id="tab-profile" class="hidden space-y-4">
-          <div class="glass-card rounded-3xl overflow-hidden"><div class="h-28 bg-gradient-to-r from-orange-600 via-rose-600 to-purple-700"></div><div class="px-5 pb-5 -mt-10 relative"><div class="w-20 h-20 rounded-full border-4 border-slate-950 bg-slate-800 flex items-center justify-center text-3xl">👤</div><h2 class="text-xl font-extrabold mt-3">Mon profil MANAS</h2><p class="text-xs text-slate-400 mt-1">Ta page personnelle et professionnelle</p><div class="grid grid-cols-3 gap-2 mt-5 text-center"><div class="bg-slate-900 rounded-xl p-3"><b class="block text-lg">—</b><span class="text-[10px] text-slate-400">Publications</span></div><div class="bg-slate-900 rounded-xl p-3"><b class="block text-lg">—</b><span class="text-[10px] text-slate-400">Abonnés</span></div><div class="bg-slate-900 rounded-xl p-3"><b class="block text-lg">—</b><span class="text-[10px] text-slate-400">Abonnements</span></div></div><button onclick="openAuthModal()" class="mt-4 w-full bg-gradient-to-r from-orange-600 to-rose-600 py-3 rounded-xl text-sm font-bold">Se connecter pour configurer mon profil</button></div></div>
-          <div class="glass-card p-4 rounded-2xl"><h3 class="font-bold mb-2">Mes publications</h3><p class="text-xs text-slate-400">Les contenus du compte apparaîtront ici lorsque le profil sera connecté aux données MANAS.</p></div>
-        </section>
-        <section id="tab-market" class="hidden space-y-4"><div class="glass-card p-5 rounded-2xl"><span class="text-[10px] text-orange-400 uppercase tracking-widest font-bold">Marché local</span><h2 class="text-xl font-black mt-2">Le Cameroun à portée de main</h2><p class="text-xs text-slate-400 mt-2">Découvre les services, restaurants, boutiques et professionnels.</p></div><div class="grid grid-cols-2 gap-3"><button onclick="switchTab('explore')" class="glass-card p-4 rounded-2xl text-left"><span class="text-2xl">🛠️</span><b class="block mt-2 text-sm">Services</b><small class="text-slate-400">Trouver un professionnel</small></button><button onclick="switchTab('explore')" class="glass-card p-4 rounded-2xl text-left"><span class="text-2xl">🍲</span><b class="block mt-2 text-sm">Restaurants</b><small class="text-slate-400">Découvrir les adresses</small></button><button onclick="switchTab('explore')" class="glass-card p-4 rounded-2xl text-left"><span class="text-2xl">🛍️</span><b class="block mt-2 text-sm">Boutiques</b><small class="text-slate-400">Produits et commerces</small></button><button onclick="switchTab('explore')" class="glass-card p-4 rounded-2xl text-left"><span class="text-2xl">🏠</span><b class="block mt-2 text-sm">Immobilier</b><small class="text-slate-400">Logements et terrains</small></button></div><p class="text-[11px] text-slate-500">Les annonces réelles dépendent des données publiées.</p></section>
-        <section id="tab-publish" class="hidden space-y-4"><div class="glass-card p-5 rounded-2xl"><h2 class="text-xl font-black">Créer une publication</h2><p class="text-xs text-slate-400 mt-2">Partage une idée, une photo, une vidéo ou une offre professionnelle.</p></div><div class="grid grid-cols-2 gap-3"><button onclick="openAuthModal()" class="glass-card p-5 rounded-2xl text-left"><span class="text-2xl">📷</span><b class="block mt-2">Photo</b><small class="text-slate-400">Partager un moment</small></button><button onclick="switchTab('reels')" class="glass-card p-5 rounded-2xl text-left"><span class="text-2xl">🎬</span><b class="block mt-2">Reel / vidéo</b><small class="text-slate-400">Voir les vidéos</small></button><button onclick="openAuthModal()" class="glass-card p-5 rounded-2xl text-left"><span class="text-2xl">🟠</span><b class="block mt-2">Statut</b><small class="text-slate-400">Partager 24 heures</small></button><button onclick="switchTab('market')" class="glass-card p-5 rounded-2xl text-left"><span class="text-2xl">🛍️</span><b class="block mt-2">Annonce</b><small class="text-slate-400">Présenter une offre</small></button></div><button onclick="openAuthModal()" class="w-full bg-gradient-to-r from-orange-600 to-rose-600 py-3 rounded-xl font-bold">Connexion pour publier</button></section>
-        <section id="tab-menu" class="hidden space-y-3"><div class="glass-card p-5 rounded-2xl"><h2 class="text-xl font-black">Mon espace MANAS</h2><p class="text-xs text-slate-400 mt-1">Ton compte et tes outils</p></div><button onclick="switchTab('profile')" class="glass-card rounded-xl p-4 w-full text-left">👤　Mon profil <span class="float-right">›</span></button><button onclick="switchTab('publish')" class="glass-card rounded-xl p-4 w-full text-left">＋　Créer une publication <span class="float-right">›</span></button><button onclick="switchTab('market')" class="glass-card rounded-xl p-4 w-full text-left">🛍️　Marketplace <span class="float-right">›</span></button><button onclick="switchTab('lidar')" class="glass-card rounded-xl p-4 w-full text-left">📐　Outils professionnels <span class="float-right">›</span></button><button onclick="openAuthModal()" class="glass-card rounded-xl p-4 w-full text-left">⚙️　Connexion / paramètres <span class="float-right">›</span></button></section>
-
-    </main>
-
-    <!-- NAVIGATION MANAS : 7 ECRANS -->
-    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800 px-1 py-2 grid grid-cols-7 items-center z-50">
-      <button onclick="switchTab('explore')" id="btn-explore" class="flex flex-col items-center text-orange-400 text-[9px] font-bold"><i data-lucide="house" class="w-5 h-5 mb-0.5"></i>Accueil</button>
-      <button onclick="switchTab('reels')" id="btn-reels" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="clapperboard" class="w-5 h-5 mb-0.5"></i>Reels</button>
-      <button onclick="switchTab('profile')" id="btn-profile" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="user-round" class="w-5 h-5 mb-0.5"></i>Profil</button>
-      <button onclick="switchTab('market')" id="btn-market" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="store" class="w-5 h-5 mb-0.5"></i>Marché</button>
-      <button onclick="switchTab('chat')" id="btn-chat" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="message-circle" class="w-5 h-5 mb-0.5"></i>Messages</button>
-      <button onclick="switchTab('publish')" id="btn-publish" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="plus-circle" class="w-5 h-5 mb-0.5"></i>Publier</button>
-      <button onclick="switchTab('menu')" id="btn-menu" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="menu" class="w-5 h-5 mb-0.5"></i>Menu</button>
-    </nav>
-
-    <!-- MODAL AUTH -->
-    <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
-        <div class="glass-card p-6 rounded-2xl border border-slate-800 max-w-xs w-full space-y-4 relative">
-            <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
-            <h3 class="text-lg font-bold text-center gradient-text">Connexion MANAS</h3>
-            <input type="email" id="auth-email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
-            <input type="password" id="auth-password" placeholder="Mot de passe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
-            <button onclick="handleLogin()" class="w-full bg-brand-500 py-2.5 rounded-xl text-xs font-bold text-white shadow-lg active-tap">Se connecter</button>
-            <button onclick="resetManasPassword()" class="w-full text-xs text-orange-300 underline py-1">Mot de passe oublié ?</button>
-        </div>
-    </div>
-
-    <!-- LOGIC MANAS + SUPABASE -->
-    <script>
-      const MANAS_SUPABASE_URL = 'https://qdzgywqocpyijxyjjiof.supabase.co';
-      const MANAS_SUPABASE_KEY = 'sb_publishable_dWYtPG6poRu2URshRlsb4Q_1Nlay06f';
-      const db = window.supabase.createClient(MANAS_SUPABASE_URL, MANAS_SUPABASE_KEY);
-      let manasUser = null;
-
-      if (window.lucide) lucide.createIcons();
-
-      function showNotice(message) { alert(message); }
-      async function initManas() {
-        try {
-          const { data, error } = await db.auth.getSession();
-          if (error) throw error;
-          manasUser = data.session?.user || null;
-          updateAuthButton();
-          if (manasUser) await loadMyProfile();
-          await loadArtisans();
-          await loadPublications();
-        } catch (e) {
-          console.error('MANAS init:', e);
-        }
-      }
-      function updateAuthButton() {
-        const label = document.getElementById('auth-btn-text');
-        if (label) label.textContent = manasUser ? 'Mon compte' : 'Connexion';
-      }
-      async function handleLogin() {
-        const email = document.getElementById('auth-email').value.trim();
-        const password = document.getElementById('auth-password').value;
-        if (!email || !password) return showNotice('Saisis ton adresse e-mail et ton mot de passe.');
-        const button = document.querySelector('#auth-modal button[onclick="handleLogin()"]');
-        if (button) { button.disabled = true; button.textContent = 'Connexion…'; }
-        let user;
-        try {
-          const { data, error } = await db.auth.signInWithPassword({ email, password });
-          if (error) {
-            const msg = /invalid login credentials/i.test(error.message)
-              ? 'Adresse e-mail ou mot de passe incorrect. Vérifie l’adresse exacte ou utilise « Mot de passe oublié ? ».'
-              : error.message;
-            return showNotice('Connexion impossible : ' + msg);
-          }
-          user = data.user;
-          manasUser = user;
-          closeAuthModal();
-          updateAuthButton();
-          showNotice('Connexion réussie. Bienvenue sur MANAS !');
-        } catch (e) {
-          return showNotice('Erreur pendant la connexion : ' + (e.message || 'réessaie dans un instant.'));
-        } finally {
-          if (button) { button.disabled = false; button.textContent = 'Se connecter'; }
-        }
-        try {
-          await ensureProfile();
-          await loadMyProfile();
-          await loadPublications();
-        } catch (e) {
-          console.error('Session active mais profil MANAS non chargé:', e);
-          showNotice('Tu es connecté, mais ton profil n’a pas pu être chargé. La connexion est active ; vérifie les permissions de la table profiles.');
-        }
-      }
-      async function resetManasPassword() {
-        const email = document.getElementById('auth-email').value.trim();
-        if (!email) return showNotice('Saisis ton adresse e-mail dans le champ Email, puis réessaie.');
-        const redirectTo = window.location.origin + window.location.pathname;
-        try {
-          const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo });
-          if (error) throw error;
-          showNotice('Si un compte correspond à cette adresse, un e-mail de réinitialisation va être envoyé. Vérifie ta boîte de réception et les spams.');
-        } catch (e) {
-          showNotice('Demande de réinitialisation impossible : ' + (e.message || 'vérifie la configuration Auth Supabase.'));
-        }
-      }
-      async function signUpManas() {
-        const emailInput = document.getElementById('auth-email');
-        const passwordInput = document.getElementById('auth-password');
-        const email = (emailInput?.value || '').trim();
-        const password = passwordInput?.value || '';
-
-        // Validate each field separately so the user knows exactly what is missing.
-        if (!email) {
-          showNotice('Saisis ton adresse e-mail dans le champ Email.');
-          emailInput?.focus();
-          return;
-        }
-        if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
-          showNotice('Cette adresse e-mail semble incomplète. Vérifie le format, par exemple nom@exemple.com.');
-          emailInput?.focus();
-          return;
-        }
-        if (password.length < 6) {
-          showNotice('Le mot de passe doit contenir au moins 6 caractères.');
-          passwordInput?.focus();
-          return;
-        }
-
-        const signupButton = document.querySelector('#auth-modal button[onclick="signUpManas()"]');
-        if (signupButton) { signupButton.disabled = true; signupButton.textContent = 'Création…'; }
-        try {
-          const { data, error } = await db.auth.signUp({ email, password });
-          if (error) {
-            showNotice('Création du compte impossible : ' + error.message);
-            return;
-          }
-          if (data.session) {
-            manasUser = data.user;
-            await ensureProfile();
-            updateAuthButton();
-            await loadMyProfile();
-            closeAuthModal();
-            showNotice('Compte MANAS créé.');
-          } else {
-            showNotice('Demande de création envoyée. Vérifie ta boîte e-mail pour confirmer ton adresse, puis connecte-toi. Si aucun e-mail n’arrive, vérifie les paramètres d’envoi e-mail dans Supabase.');
-          }
-        } catch (e) {
-          showNotice('Erreur pendant la création du compte : ' + (e.message || 'réessaie dans un instant.'));
-        } finally {
-          if (signupButton) { signupButton.disabled = false; signupButton.textContent = 'Créer un compte'; }
-        }
-      }
-      async function ensureProfile() {
-        if (!manasUser) return;
-        const { data: found, error: readError } = await db.from('profiles').select('*').eq('id', manasUser.id).maybeSingle();
-        if (readError) throw readError;
-        if (!found) {
-          const name = manasUser.user_metadata?.full_name || manasUser.email?.split('@')[0] || 'Membre MANAS';
-          const { error } = await db.from('profiles').insert({ id: manasUser.id, full_name: name, role: 'client' });
-          if (error) throw error;
-        }
-      }
-      async function loadMyProfile() {
-        if (!manasUser) return;
-        try {
-          await ensureProfile();
-          const [{ data: profile }, { count: posts }, { count: followers }, { count: following }] = await Promise.all([
-            db.from('profiles').select('*').eq('id', manasUser.id).maybeSingle(),
-            db.from('publications').select('id', {count:'exact',head:true}).eq('user_id', manasUser.id),
-            db.from('follows').select('*', {count:'exact',head:true}).eq('followed_id', manasUser.id),
-            db.from('follows').select('*', {count:'exact',head:true}).eq('follower_id', manasUser.id)
-          ]);
-          const name = profile?.full_name || manasUser.email || 'Membre MANAS';
-          const title = document.querySelector('#tab-profile h2');
-          if (title) title.textContent = name;
-          const subtitle = document.querySelector('#tab-profile p');
-          if (subtitle) subtitle.textContent = profile?.bio || profile?.city || manasUser.email || 'Ton profil MANAS';
-          const nums = document.querySelectorAll('#tab-profile .grid.grid-cols-3 b');
-          if (nums.length >= 3) { nums[0].textContent = posts ?? 0; nums[1].textContent = followers ?? 0; nums[2].textContent = following ?? 0; }
-          const cta = document.querySelector('#tab-profile button');
-          if (cta) { cta.textContent = 'Se déconnecter'; cta.onclick = signOutManas; }
-        } catch (e) { console.error('Profil MANAS:', e); }
-      }
-      async function signOutManas() {
-        const { error } = await db.auth.signOut();
-        if (error) return showNotice(error.message);
-        manasUser = null;
-        updateAuthButton();
-        showNotice('Tu es déconnecté de MANAS.');
-        switchTab('explore');
-      }
-      async function loadArtisans() {
-        const grid = document.getElementById('artisans-grid');
-        if (!grid) return;
-        const { data, error } = await db.from('artisans').select('id,business_name,category,location_name,price_xaf,description,image_url,avatar_url,badge,rating').limit(30);
-        if (error) { console.error('Artisans:', error); return; }
-        if (!data?.length) {
-          grid.innerHTML = '<div class="glass-card p-4 rounded-2xl text-sm text-slate-400">Aucun professionnel publié pour le moment. Reviens bientôt !</div>';
-          return;
-        }
-        grid.innerHTML = data.map(a => {
-          const name = escapeHtml(a.business_name || a.category || 'Professionnel MANAS');
-          const description = escapeHtml(a.description || a.category || 'Service professionnel');
-          const location = escapeHtml(a.location_name || 'Cameroun');
-          const price = escapeHtml(a.price_xaf || 'Prix à discuter');
-          const img = a.image_url ? '<img src="' + escapeHtml(a.image_url) + '" alt="" class="w-full h-32 object-cover rounded-xl mb-3" loading="lazy">' : '';
-          return '<article class="glass-card p-4 rounded-2xl space-y-3">' + img + '<div class="flex justify-between gap-2"><h4 class="font-bold text-sm">' + name + '</h4><span class="text-[10px] text-orange-400">' + escapeHtml(a.badge || '') + '</span></div><p class="text-xs text-slate-400">' + description + ' • ' + location + '</p><div class="flex justify-between items-center pt-2 border-t border-slate-800"><span class="text-xs font-bold text-orange-400">' + price + '</span><button onclick="switchTab(\'chat\')" class="bg-orange-500 px-3 py-2 rounded-xl text-xs font-bold">Contacter</button></div></article>';
-        }).join('');
-      }
-      async function loadPublications() {
-        const section = document.getElementById('tab-profile');
-        if (!section) return;
-        const old = section.querySelector('[data-manas-posts]');
-        if (old) old.remove();
-        if (!manasUser) return;
-        const { data, error } = await db.from('publications').select('id,title,description,category,city,price_xaf,image_url,video_url,created_at').eq('user_id', manasUser.id).order('created_at', {ascending:false}).limit(30);
-        if (error) { console.error('Publications:', error); return; }
-        const box = document.createElement('div');
-        box.dataset.manasPosts = '1';
-        box.className = 'glass-card p-4 rounded-2xl space-y-3';
-        box.innerHTML = '<h3 class="font-bold">Mes publications</h3>';
-        if (!data?.length) box.innerHTML += '<p class="text-xs text-slate-400">Tu n’as pas encore publié de contenu.</p>';
-        else data.forEach(p => {
-          const item = document.createElement('article');
-          item.className = 'border-t border-slate-700 pt-3';
-          const h = document.createElement('h4'); h.className='font-bold text-sm'; h.textContent=p.title;
-          const d = document.createElement('p'); d.className='text-xs text-slate-300 mt-1'; d.textContent=p.description || p.category || '';
-          item.append(h,d);
-          if (p.image_url) { const img=document.createElement('img'); img.src=p.image_url; img.className='rounded-xl max-h-64 object-cover mt-2'; img.alt=p.title; item.append(img); }
-          if (p.video_url) { const v=document.createElement('video'); v.src=p.video_url; v.controls=true; v.className='rounded-xl w-full mt-2'; item.append(v); }
-          box.append(item);
-        });
-        section.append(box);
-      }
-      function escapeHtml(value) {
-        return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-      }
-      function switchTab(tab) {
-        ['explore','reels','lidar','escrow','chat','profile','market','publish','menu'].forEach(t => {
-          const el=document.getElementById('tab-'+t), btn=document.getElementById('btn-'+t);
-          if(el) el.classList.add('hidden');
-          if(btn) { btn.classList.remove('text-brand-500','font-bold','text-orange-400'); btn.classList.add('text-slate-400'); }
-        });
-        const target=document.getElementById('tab-'+tab);
-        if(target) target.classList.remove('hidden');
-        const active=document.getElementById('btn-'+tab);
-        if(active) { active.classList.remove('text-slate-400'); active.classList.add('text-orange-400','font-bold'); }
-        if(tab==='profile' && manasUser) { loadMyProfile(); loadPublications(); }
-        if(tab==='lidar' && !window.threeLoaded) { init3D(); window.threeLoaded=true; }
-      }
-      function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-      function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-
-      async function sendChatMessage() {
-        const input=document.getElementById('chat-input');
-        if(!manasUser) { openAuthModal(); return; }
-        const receiver = prompt('Saisis l’UUID Supabase du destinataire pour démarrer cette conversation :');
-        if(!receiver) return;
-        const content=input.value.trim();
-        if(!content) return showNotice('Écris un message avant de l’envoyer.');
-        const { error } = await db.from('messages').insert({sender_id:manasUser.id,receiver_id:receiver,content});
-        if(error) return showNotice('Message non envoyé : '+error.message);
-        input.value='';
-        showNotice('Message envoyé.');
-      }
-      async function init3D() {
-        const container=document.getElementById('canvas-3d');
-        if(!container || !window.THREE) return;
-        const scene=new THREE.Scene(); scene.background=new THREE.Color(0x020617);
-        const camera=new THREE.PerspectiveCamera(60,container.clientWidth/container.clientHeight,0.1,1000); camera.position.set(0,3,5);
-        const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setSize(container.clientWidth,container.clientHeight); container.appendChild(renderer.domElement);
-        const cube=new THREE.Mesh(new THREE.BoxGeometry(2,2,2),new THREE.MeshBasicMaterial({color:0x06b6d4,wireframe:true})); scene.add(cube);
-        function animate(){requestAnimationFrame(animate);cube.rotation.x+=0.01;cube.rotation.y+=0.01;renderer.render(scene,camera);} animate();
-      }
-      document.getElementById('auth-modal').querySelector('.glass-card').insertAdjacentHTML('beforeend','<button type="button" onclick="signUpManas()" class="w-full border border-slate-600 py-2.5 rounded-xl text-xs font-bold">Créer un compte</button>');
-      db.auth.onAuthStateChange((_event, session) => { manasUser=session?.user||null; updateAuthButton(); });
-      initManas();
-    </script>
-</body>
-</html>
+<body>
+<div class="app">
+<header class="top"><div><div class="brand"><div class="logo">C</div><div>Camer<span>Link</span><div class="sub">Le Cameroun plus proche que jamais !</div></div></div></div><button class="auth" id="authBtn" onclick="openAuth()">Connexion</button></header>
+<main class="layout">
+<section id="screen-home" class="screen active">
+<div class="hero"><div class="eyebrow">Le premier réseau social camerounais</div><h1>Découvre, partage,<br>consomme local.</h1><p>Connecte-toi, partage tes moments et fais grandir ton business au Cameroun.</p><div class="search"><input class="field" id="searchInput" placeholder="Rechercher un service, produit, artisan…" oninput="renderMarket()"><select class="field" id="cityFilter"><option value="">Toutes les villes</option><option>Yaoundé</option><option>Douala</option><option>Kribi</option><option>Bafoussam</option><option>Garoua</option></select></div></div>
+<div class="sectiontitle">Stories / Statuts <button class="secondary" onclick="go('publish')">+ Ajouter</button></div><div class="storyrow" id="stories"></div>
+<div class="sectiontitle">À découvrir</div><div class="grid" id="homeMarket"></div>
+<div class="sectiontitle">Publications récentes</div><div id="homePosts"></div>
+</section>
+<section id="screen-reels" class="screen"><div class="eyebrow">Vidéos courtes</div><h2>Reels CamerLink</h2><p class="muted">Découvre les talents, les créateurs et les moments qui font vibrer le Cameroun.</p><div id="reelsList"></div></section>
+<section id="screen-profile" class="screen"><div class="profilehead"><div class="profiletop"><div class="profilepic" id="profilePic">👤</div><div><h2 id="profileName">Mon profil</h2><div class="muted" id="profileHandle">@membre</div><p class="tiny" id="profileBio">Ta identité, tes publications, ton audience.</p></div></div><div class="stats"><div><b id="postCount">0</b><span class="tiny">Publications</span></div><div><b id="followersCount">0</b><span class="tiny">Abonnés</span></div><div><b id="followingCount">0</b><span class="tiny">Abonnements</span></div></div><div class="search"><button class="cta" onclick="editProfile()">Modifier le profil</button><button class="secondary" onclick="signOut()">Se déconnecter</button></div></div><div class="profiletabs"><button class="pill active" onclick="profileTab('posts',this)">Publications</button><button class="pill" onclick="profileTab('reels',this)">Reels</button><button class="pill" onclick="profileTab('about',this)">À propos</button></div><div id="profileContent"></div></section>
+<section id="screen-market" class="screen"><div class="hero"><div class="eyebrow">Commerce local</div><h1>Marché</h1><p>Trouve les meilleurs services, restaurants, boutiques et logements près de toi.</p><div class="search"><input class="field" id="marketSearch" placeholder="Que recherches-tu ?" oninput="renderMarket()"><select class="field" id="marketCity" onchange="renderMarket()"><option value="">Toutes les villes</option><option>Yaoundé</option><option>Douala</option><option>Kribi</option><option>Bafoussam</option><option>Garoua</option></select></div></div><div class="pillrow" id="marketCategories"><button class="pill active" onclick="setCategory('',this)">Tous</button><button class="pill" onclick="setCategory('Services',this)">Services</button><button class="pill" onclick="setCategory('Restaurants',this)">Restaurants</button><button class="pill" onclick="setCategory('Boutiques',this)">Boutiques</button><button class="pill" onclick="setCategory('Immobilier',this)">Immobilier</button></div><div class="grid" id="marketGrid"></div></section>
+<section id="screen-messages" class="screen"><div class="eyebrow">Reste proche de ceux qui comptent</div><h2>Messages</h2><div class="list" id="conversationList"><div class="empty">Connecte-toi pour retrouver tes conversations.</div></div><div id="chatPanel" class="hidden"><button class="secondary" onclick="backConversations()">← Conversations</button><h3 id="chatTitle">Conversation</h3><div id="chatMessages"></div><form class="composer" onsubmit="sendMessage(event)"><input class="field" id="messageInput" placeholder="Écrire un message…"><button class="cta">Envoyer</button></form></div></section>
+<section id="screen-publish" class="screen"><div class="eyebrow">Exprime-toi, partage, fais grandir ta communauté</div><h2>Créer une publication</h2><div class="card cardbody"><div class="publish-types"><button class="type" onclick="setPublishType('photo')"><strong>▧</strong>Photo</button><button class="type" onclick="setPublishType('video')"><strong>▷</strong>Vidéo</button><button class="type" onclick="setPublishType('reel')"><strong>▣</strong>Reel</button><button class="type" onclick="setPublishType('story')"><strong>◉</strong>Statut</button></div><p class="muted" id="publishHint">Choisis un type de contenu.</p><input class="field" type="file" id="mediaFile" accept="image/*,video/*" style="width:100%;margin:10px 0"><textarea class="field textarea" id="publishText" placeholder="Quoi de neuf ?"></textarea><div class="search"><input class="field" id="publishTitle" placeholder="Titre (pour le marché)"><select class="field" id="publishCategory"><option>Services</option><option>Restaurants</option><option>Boutiques</option><option>Immobilier</option></select><select class="field" id="publishCity"><option>Yaoundé</option><option>Douala</option><option>Kribi</option><option>Bafoussam</option><option>Garoua</option></select></div><button class="cta" style="width:100%;margin-top:12px" onclick="publish()">Publier</button></div></section>
+<section id="screen-menu" class="screen"><div class="eyebrow">Gère ton espace en toute simplicité</div><h2>Mon espace</h2><div class="profilehead" style="margin-bottom:14px"><div class="profiletop"><div class="profilepic" id="menuPic">👤</div><div><b id="menuName">Membre CamerLink</b><div class="tiny" id="menuEmail">Connecte-toi pour gérer ton compte</div></div></div></div><div class="list"><button class="menuitem" onclick="go('profile')">▣　Mes publications <span>›</span></button><button class="menuitem" onclick="go('market')">♧　Mes annonces / Marché <span>›</span></button><button class="menuitem" onclick="go('publish')">＋　Créer un contenu <span>›</span></button><button class="menuitem" onclick="go('profile')">♡　Mes favoris <span>›</span></button><button class="menuitem" onclick="editProfile()">⚙　Paramètres du profil <span>›</span></button><button class="menuitem" onclick="openAuth()">ⓘ　Aide & support <span>›</span></button><button class="menuitem orange" onclick="signOut()">↪　Se déconnecter <span>›</span></button></div><div class="footer"><span>☆ 100% Camerounais</span><span>♢ Sécurisé</span><span>ϟ Rapide & moderne</span><span>♡ Proche de toi</span></div></section>
+</main>
+<nav class="bottom"><div class="nav"><button data-nav="home" class="active" onclick="go('home')"><span>⌂</span>Accueil</button><button data-nav="reels" onclick="go('reels')"><span>▣</span>Reels</button><button class="plus" onclick="go('publish')" aria-label="Publier">+</button><button data-nav="messages" onclick="go('messages')"><span>▤</span>Messages</button><button data-nav="profile" onclick="go('profile')"><span>♙</span>Profil</button></div></nav>
+</div>
+<div id="authModal" class="modal hidden"><div class="modalbox"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Connexion CamerLink</h2><button onclick="closeAuth()">✕</button></div><input class="field" id="authEmail" type="email" placeholder="Adresse e-mail"><input class="field" id="authPassword" type="password" placeholder="Mot de passe (6 caractères minimum)"><input class="field" id="authName" placeholder="Nom complet (pour l'inscription)"><button class="cta" style="width:100%;margin-top:8px" onclick="login()">Se connecter</button><button class="secondary" style="width:100%;margin-top:8px" onclick="signup()">Créer un compte</button><button class="secondary" style="width:100%;margin-top:8px" onclick="resetPassword()">Mot de passe oublié ?</button></div></div>
+<div id="toast" class="toast hidden"></div>
+<script>
+const SB_URL='https://qdzgywqocpyijxyjjiof.supabase.co', SB_KEY='sb_publishable_dWYtPG6poRu2URshRlsb4Q_1Nlay06f';
+const db=window.supabase.createClient(SB_URL,SB_KEY);
+let user=null, myProfile=null, activeCategory='', publishType='photo', activePeer=null, activeProfileTab='posts', cachePosts=[], cacheArtisans=[], cacheStories=[];
+const $=id=>document.getElementById(id);
+function notice(s){$('toast').textContent=s;$('toast').classList.remove('hidden');setTimeout(()=>$('toast').classList.add('hidden'),3500)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function go(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('screen-'+name)?.classList.add('active');document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===name));if(name==='profile')loadProfile();if(name==='messages')loadConversations();if(name==='reels')loadReels();if(name==='market')renderMarket();window.scrollTo({top:0,behavior:'smooth'})}
+function openAuth(){$('authModal').classList.remove('hidden')}function closeAuth(){$('authModal').classList.add('hidden')}
+async function login(){let email=$('authEmail').value.trim(),password=$('authPassword').value;if(!email||!password)return notice('Saisis ton e-mail et ton mot de passe.');const {data,error}=await db.auth.signInWithPassword({email,password});if(error)return notice('Connexion impossible : '+error.message);user=data.user;await afterAuth();closeAuth();notice('Bienvenue sur CamerLink.')}
+async function signup(){let email=$('authEmail').value.trim(),password=$('authPassword').value,name=$('authName').value.trim();if(!email||!email.includes('@'))return notice('Saisis une adresse e-mail valide.');if(password.length<6)return notice('Le mot de passe doit contenir au moins 6 caractères.');const {data,error}=await db.auth.signUp({email,password,options:{data:{full_name:name||email.split('@')[0]}}});if(error)return notice('Inscription impossible : '+error.message);if(data.session){user=data.user;await afterAuth();closeAuth();notice('Compte créé.')}else notice('Vérifie ta boîte e-mail pour confirmer ton compte.')}
+async function resetPassword(){let email=$('authEmail').value.trim();if(!email)return notice('Saisis ton e-mail.');const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error)return notice(error.message);notice('Si le compte existe, un e-mail de récupération a été envoyé.')}
+async function signOut(){const {error}=await db.auth.signOut();if(error)return notice(error.message);user=null;myProfile=null;$('authBtn').textContent='Connexion';notice('Déconnexion effectuée.');go('home')}
+async function afterAuth(){if(!user)return; $('authBtn').textContent='Mon compte';let {data:p}=await db.from('profiles').select('*').eq('id',user.id).maybeSingle();if(!p){const {data,error}=await db.from('profiles').insert({id:user.id,full_name:user.user_metadata?.full_name||user.email.split('@')[0]}).select().single();if(!error)p=data}myProfile=p;loadProfile();loadConversations();loadStories()}
+function avatarHTML(url,name){return url?'<img src="'+esc(url)+'" alt="">':esc((name||'C').trim().charAt(0).toUpperCase())}
+async function loadProfile(){if(!user){$('profileName').textContent='Mon profil';$('profileHandle').textContent='Connecte-toi pour voir ton profil';$('profileContent').innerHTML='<div class="empty">Connecte-toi pour afficher ton profil et tes publications.</div>';return}let {data:p}=await db.from('profiles').select('*').eq('id',user.id).maybeSingle();myProfile=p||myProfile;const name=p?.full_name||user.email.split('@')[0];$('profileName').textContent=name;$('profileHandle').textContent='@'+(p?.username||name.toLowerCase().replace(/[^a-z0-9]/g,''));$('profileBio').textContent=p?.bio||p?.city||'Ta identité, tes publications, ton audience.';$('profilePic').innerHTML=avatarHTML(p?.avatar_url,name);$('menuPic').innerHTML=avatarHTML(p?.avatar_url,name);$('menuName').textContent=name;$('menuEmail').textContent=user.email;const [{count:posts},{count:followers},{count:following}] = await Promise.all([db.from('publications').select('id',{count:'exact',head:true}).eq('user_id',user.id),db.from('follows').select('*',{count:'exact',head:true}).eq('followed_id',user.id),db.from('follows').select('*',{count:'exact',head:true}).eq('follower_id',user.id)]);$('postCount').textContent=posts||0;$('followersCount').textContent=followers||0;$('followingCount').textContent=following||0;profileTab(activeProfileTab,document.querySelector('.profiletabs .pill.active'))}
+async function profileTab(tab,btn){activeProfileTab=tab;document.querySelectorAll('.profiletabs .pill').forEach(b=>b.classList.toggle('active',b===btn));if(!user){$('profileContent').innerHTML='<div class="empty">Connecte-toi pour continuer.</div>';return}if(tab==='about'){$('profileContent').innerHTML='<div class="card cardbody">'+esc(myProfile?.bio||'Ajoute une bio dans Modifier le profil.')+'<p class="muted">'+esc(myProfile?.city||'Cameroun')+'</p></div>';return}let q=db.from('publications').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(50);if(tab==='reels')q=q.eq('media_type','reel');let {data,error}=await q;if(error){$('profileContent').innerHTML='<div class="empty">Impossible de charger les publications.</div>';return}cachePosts=data||[];$('profileContent').innerHTML=cachePosts.length?cachePosts.map(postCard).join(''):'<div class="empty">Aucune publication pour le moment.</div>'}
+async function editProfile(){if(!user)return openAuth();let name=prompt('Ton nom affiché :',myProfile?.full_name||'');if(name===null)return;let username=prompt('Nom utilisateur (sans @) :',myProfile?.username||'');if(username===null)return;let bio=prompt('Ta bio :',myProfile?.bio||'');if(bio===null)return;let city=prompt('Ta ville :',myProfile?.city||'Yaoundé');const {data,error}=await db.from('profiles').upsert({id:user.id,full_name:name.trim(),username:username.trim().replace(/^@/,''),bio:bio.trim(),city:city.trim(),updated_at:new Date().toISOString()}).select().single();if(error)return notice('Profil non enregistré : '+error.message);myProfile=data;loadProfile();notice('Profil mis à jour.')}
+async function loadArtisans(){let {data,error}=await db.from('artisans').select('id,user_id,business_name,category,location_name,price_xaf,description,image_url,avatar_url,badge,rating').limit(40);cacheArtisans=error?[]:(data||[]);renderMarket()}
+function artCard(a){let icons={Services:'🛠️',Restaurants:'🍲',Boutiques:'🛍️',Immobilier:'🏠'};return '<article class="card"><div class="cover">'+(a.image_url?'<img src="'+esc(a.image_url)+'" alt="">':(icons[a.category]||'🇨🇲'))+'</div><div class="cardbody"><div class="name">'+esc(a.business_name||a.category||'Professionnel')+'</div><p class="tiny">'+esc(a.category||'Commerce')+' · '+esc(a.location_name||'Cameroun')+'</p><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="price">'+esc(a.price_xaf||'Prix à discuter')+' FCFA</span><button class="secondary" onclick="contactArtisan(''+esc(a.user_id||'')+'')">Contacter</button></div></div></article>'}
+function setCategory(c,btn){activeCategory=c;document.querySelectorAll('#marketCategories .pill').forEach(b=>b.classList.toggle('active',b===btn));renderMarket()}
+function renderMarket(){const search=(($('marketSearch')?.value||$('searchInput')?.value||'').toLowerCase()),city=$('marketCity')?.value||$('cityFilter')?.value||'';const list=cacheArtisans.filter(a=>(!activeCategory||a.category===activeCategory)&&(!city||a.location_name?.toLowerCase().includes(city.toLowerCase()))&&(!search||[a.business_name,a.category,a.description,a.location_name].join(' ').toLowerCase().includes(search)));const html=list.length?list.map(artCard).join(''):'<div class="empty">Aucun commerce trouvé. Publie ton activité pour être visible.</div>';if($('marketGrid'))$('marketGrid').innerHTML=html;if($('homeMarket'))$('homeMarket').innerHTML=list.slice(0,4).map(artCard).join('')}
+function contactArtisan(id){if(!user)return openAuth();if(!id)return notice('Le profil du professionnel n’est pas encore relié à un compte.');activePeer=id;go('messages');openConversation(id,'Professionnel CamerLink')}
+async function loadStories(){let {data,error}=await db.from('stories').select('id,user_id,media_url,media_type,caption,created_at,expires_at').gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(30);cacheStories=error?[]:(data||[]);$('stories').innerHTML='<div class="story" onclick="go(\'publish\')"><div class="ring"><div class="avatar">+</div></div>Ton statut</div>'+cacheStories.map(s=>'<button class="story" onclick="viewStory(\''+s.id+'\')"><div class="ring"><div class="avatar">'+(s.media_type==='image'&&s.media_url?'<img src="'+esc(s.media_url)+'">':'▶')+'</div></div>Statut</button>').join('')}
+function viewStory(id){let s=cacheStories.find(x=>x.id===id);if(!s)return;alert((s.caption||'Statut CamerLink')+'\n'+s.media_url)}
+function postCard(p){let media=p.video_url?'<video controls playsinline src="'+esc(p.video_url)+'"></video>':p.image_url?'<img src="'+esc(p.image_url)+'" alt="">':'';return '<article class="card post"><div class="posthead"><div class="avatar">C</div><div><div class="name">'+esc(myProfile?.full_name||'Membre CamerLink')+'</div><div class="tiny">'+esc(p.city||'Cameroun')+' · '+new Date(p.created_at).toLocaleDateString('fr-FR')+'</div></div></div><div class="postmedia">'+(media||'🇨🇲')+'</div><div class="cardbody"><b>'+esc(p.title||'Publication')+'</b><p>'+esc(p.description||'')+'</p></div><div class="postactions"><button onclick="likePost('+p.id+')">♡ J’aime</button><button onclick="commentPost('+p.id+')">◌ Commenter</button><button onclick="sharePost('+p.id+')">↗ Partager</button></div></article>'}
+async function loadHomePosts(){let {data,error}=await db.from('publications').select('*').order('created_at',{ascending:false}).limit(12);if(error){$('homePosts').innerHTML='<div class="empty">Les publications seront affichées ici.</div>';return}cachePosts=data||[];$('homePosts').innerHTML=cachePosts.length?cachePosts.map(postCard).join(''):'<div class="empty">Les premières publications de la communauté apparaîtront ici.</div>'}
+async function loadReels(){let {data,error}=await db.from('publications').select('*').eq('media_type','reel').order('created_at',{ascending:false}).limit(20);if(error){$('reelsList').innerHTML='<div class="empty">Impossible de charger les Reels. Vérifie les autorisations de la base.</div>';return}const arr=data||[];$('reelsList').innerHTML=arr.length?arr.map(p=>'<article class="card post"><div class="reelview">'+(p.video_url?'<video src="'+esc(p.video_url)+'" controls playsinline preload="metadata"></video>':p.image_url?'<img src="'+esc(p.image_url)+'">':'<div class="empty">Vidéo non disponible</div>')+'<div class="reeloverlay"><div><b>'+esc(p.title||'Reel CamerLink')+'</b><div>'+esc(p.description||'')+'</div></div><div class="reelbuttons"><button onclick="likePost('+p.id+')">♡</button><button onclick="commentPost('+p.id+')">◌</button><button onclick="sharePost('+p.id+')">↗</button></div></div></div></article>').join(''):'<div class="empty">Les Reels publiés apparaîtront ici.</div>'}
+async function likePost(id){if(!user)return openAuth();const {error}=await db.from('publication_likes').upsert({user_id:user.id,publication_id:id},{onConflict:'user_id,publication_id',ignoreDuplicates:true});if(error)return notice('J’aime impossible : '+error.message);notice('J’aime enregistré.')}
+async function commentPost(id){if(!user)return openAuth();let content=prompt('Ton commentaire :');if(!content?.trim())return;const {error}=await db.from('publication_comments').insert({publication_id:id,user_id:user.id,content:content.trim()});if(error)return notice('Commentaire impossible : '+error.message);notice('Commentaire publié.')}
+async function sharePost(id){let url=location.origin+location.pathname+'?publication='+id;try{if(navigator.share)await navigator.share({title:'CamerLink',url});else{await navigator.clipboard.writeText(url);notice('Lien copié.')}}catch(e){}}
+function setPublishType(t){publishType=t;$('publishHint').textContent=({photo:'Publie une photo.',video:'Publie une vidéo.',reel:'Publie un Reel vidéo court.',story:'Publie un statut visible pendant 24 heures.'})[t];$('mediaFile').accept=t==='photo'?'image/*':t==='story'?'image/*,video/*':'video/*'}
+async function publish(){if(!user)return openAuth();let file=$('mediaFile').files[0],description=$('publishText').value.trim(),title=$('publishTitle').value.trim()||description.slice(0,80)||'Publication CamerLink';if(!description&&!file)return notice('Ajoute un texte ou un fichier média.');let mediaUrl=null;if(file){const bucket=publishType==='story'?'stories-media':'publications-media';const path=user.id+'/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');const {data,error}=await db.storage.from(bucket).upload(path,file,{upsert:false,contentType:file.type});if(error)return notice('Envoi du média impossible : '+error.message);const {data:pub}=db.storage.from(bucket).getPublicUrl(data.path);mediaUrl=pub.publicUrl}
+if(publishType==='story'){if(!mediaUrl)return notice('Un fichier est nécessaire pour un statut.');const {error}=await db.from('stories').insert({user_id:user.id,media_url:mediaUrl,media_type:file?.type.startsWith('video/')?'video':'image',caption:description});if(error)return notice('Statut non publié : '+error.message);await loadStories();notice('Statut publié pour 24 heures.')}
+else{let row={user_id:user.id,title,description,category:$('publishCategory').value,city:$('publishCity').value,media_type:publishType};if(mediaUrl){if(file.type.startsWith('video/'))row.video_url=mediaUrl;else row.image_url=mediaUrl}const {error}=await db.from('publications').insert(row);if(error)return notice('Publication impossible : '+error.message);notice('Publication publiée.');await loadHomePosts();await loadProfile()}$('publishText').value='';$('publishTitle').value='';$('mediaFile').value='';go(publishType==='reel'?'reels':'home')}
+async function loadConversations(){if(!user){$('conversationList').innerHTML='<div class="empty">Connecte-toi pour retrouver tes conversations.</div>';return}const {data,error}=await db.from('messages').select('sender_id,receiver_id,content,created_at').or('sender_id.eq.'+user.id+',receiver_id.eq.'+user.id).order('created_at',{ascending:false}).limit(100);if(error){$('conversationList').innerHTML='<div class="empty">Impossible de charger les messages : '+esc(error.message)+'</div>';return}let peers=[...new Set((data||[]).map(m=>m.sender_id===user.id?m.receiver_id:m.sender_id))];if(!peers.length){$('conversationList').innerHTML='<div class="empty">Pas encore de messages. Visite un profil et contacte son propriétaire.</div>';return}let html='';for(const id of peers){let m=data.find(x=>x.sender_id===id||x.receiver_id===id);let {data:p}=await db.from('profiles').select('full_name,avatar_url').eq('id',id).maybeSingle();html+='<button class="listitem" onclick="openConversation(\''+id+'\',\''+esc(p?.full_name||'Membre CamerLink')+'\')"><div class="avatar">'+avatarHTML(p?.avatar_url,p?.full_name)+'</div><div class="grow"><b>'+esc(p?.full_name||'Membre CamerLink')+'</b><div class="tiny">'+esc(m?.content||'')+'</div></div></button>'}$('conversationList').innerHTML=html}
+async function openConversation(id,name){if(!user)return openAuth();activePeer=id;$('chatPanel').classList.remove('hidden');$('conversationList').classList.add('hidden');$('chatTitle').textContent=name;await loadChatMessages()}
+async function loadChatMessages(){if(!activePeer)return;const {data,error}=await db.from('messages').select('*').or('and(sender_id.eq.'+user.id+',receiver_id.eq.'+activePeer+'),and(sender_id.eq.'+activePeer+',receiver_id.eq.'+user.id+')').order('created_at');if(error){$('chatMessages').innerHTML='<p class="muted">Messages indisponibles : '+esc(error.message)+'</p>';return}$('chatMessages').innerHTML=(data||[]).map(m=>'<div class="msg '+(m.sender_id===user.id?'mine':'')+'">'+esc(m.content)+'<div class="tiny">'+new Date(m.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'</div></div>').join('');$('chatMessages').scrollIntoView({block:'end'})}
+function backConversations(){$('chatPanel').classList.add('hidden');$('conversationList').classList.remove('hidden');activePeer=null}
+async function sendMessage(e){e.preventDefault();if(!user||!activePeer)return notice('Choisis une conversation.');let content=$('messageInput').value.trim();if(!content)return;const {error}=await db.from('messages').insert({sender_id:user.id,receiver_id:activePeer,content});if(error)return notice('Message non envoyé : '+error.message);$('messageInput').value='';await loadChatMessages()}
+db.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;if(user)afterAuth();else{$('authBtn').textContent='Connexion';myProfile=null}});
+(async()=>{const {data}=await db.auth.getSession();user=data.session?.user||null;if(user)await afterAuth();await loadArtisans();await loadStories();await loadHomePosts();renderMarket()})();
+</script>
+</body></html>

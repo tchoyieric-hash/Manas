@@ -181,6 +181,7 @@
             <input type="email" id="auth-email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
             <input type="password" id="auth-password" placeholder="Mot de passe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
             <button onclick="handleLogin()" class="w-full bg-brand-500 py-2.5 rounded-xl text-xs font-bold text-white shadow-lg active-tap">Se connecter</button>
+            <button onclick="resetManasPassword()" class="w-full text-xs text-orange-300 underline py-1">Mot de passe oublié ?</button>
         </div>
     </div>
 
@@ -231,6 +232,18 @@
           showNotice('Connexion impossible : ' + (e.message || 'vérifie tes identifiants et la configuration Auth Supabase.'));
         } finally {
           if (button) { button.disabled = false; button.textContent = 'Se connecter'; }
+        }
+      }
+      async function resetManasPassword() {
+        const email = document.getElementById('auth-email').value.trim();
+        if (!email) return showNotice('Saisis ton adresse e-mail dans le champ Email, puis réessaie.');
+        const redirectTo = window.location.origin + window.location.pathname;
+        try {
+          const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo });
+          if (error) throw error;
+          showNotice('Si un compte correspond à cette adresse, un e-mail de réinitialisation va être envoyé. Vérifie ta boîte de réception et les spams.');
+        } catch (e) {
+          showNotice('Demande de réinitialisation impossible : ' + (e.message || 'vérifie la configuration Auth Supabase.'));
         }
       }
       async function signUpManas() {

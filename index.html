@@ -259,20 +259,50 @@
         }
       }
       async function signUpManas() {
-        const email = document.getElementById('auth-email').value.trim();
-        const password = document.getElementById('auth-password').value;
-        if (!email || password.length < 6) return showNotice('Saisis un e-mail valide et un mot de passe d’au moins 6 caractères.');
-        const { data, error } = await db.auth.signUp({ email, password });
-        if (error) return showNotice('Création du compte impossible : ' + error.message);
-        if (data.session) {
-          manasUser = data.user;
-          await ensureProfile();
-          updateAuthButton();
-          await loadMyProfile();
-          closeAuthModal();
-          showNotice('Compte MANAS créé.');
-        } else {
-          showNotice('Compte demandé. Vérifie ta boîte e-mail pour confirmer ton adresse, puis connecte-toi.');
+        const emailInput = document.getElementById('auth-email');
+        const passwordInput = document.getElementById('auth-password');
+        const email = (emailInput?.value || '').trim();
+        const password = passwordInput?.value || '';
+
+        // Validate each field separately so the user knows exactly what is missing.
+        if (!email) {
+          showNotice('Saisis ton adresse e-mail dans le champ Email.');
+          emailInput?.focus();
+          return;
+        }
+        if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+          showNotice('Cette adresse e-mail semble incomplète. Vérifie le format, par exemple nom@exemple.com.');
+          emailInput?.focus();
+          return;
+        }
+        if (password.length < 6) {
+          showNotice('Le mot de passe doit contenir au moins 6 caractères.');
+          passwordInput?.focus();
+          return;
+        }
+
+        const signupButton = document.querySelector('#auth-modal button[onclick="signUpManas()"]');
+        if (signupButton) { signupButton.disabled = true; signupButton.textContent = 'Création…'; }
+        try {
+          const { data, error } = await db.auth.signUp({ email, password });
+          if (error) {
+            showNotice('Création du compte impossible : ' + error.message);
+            return;
+          }
+          if (data.session) {
+            manasUser = data.user;
+            await ensureProfile();
+            updateAuthButton();
+            await loadMyProfile();
+            closeAuthModal();
+            showNotice('Compte MANAS créé.');
+          } else {
+            showNotice('Demande de création envoyée. Vérifie ta boîte e-mail pour confirmer ton adresse, puis connecte-toi. Si aucun e-mail n’arrive, vérifie les paramètres d’envoi e-mail dans Supabase.');
+          }
+        } catch (e) {
+          showNotice('Erreur pendant la création du compte : ' + (e.message || 'réessaie dans un instant.'));
+        } finally {
+          if (signupButton) { signupButton.disabled = false; signupButton.textContent = 'Créer un compte'; }
         }
       }
       async function ensureProfile() {

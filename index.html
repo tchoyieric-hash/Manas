@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MANAS — Global OS Artisans & BTP</title>
+    <title>MANAS — Le réseau qui rapproche le Cameroun</title>
+    <meta name="theme-color" content="#07090f">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -69,9 +70,9 @@
         <!-- TAB 1 : EXPLORER -->
         <section id="tab-explore" class="space-y-4">
             <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2">
-                <span class="text-[10px] text-brand-400 font-bold uppercase tracking-widest">Plateforme BTP & Artisans</span>
-                <h1 class="text-xl font-black">Trouvez un artisan certifié</h1>
-                <p class="text-xs text-slate-400">Séquestre sécurisé, modélisation 3D et suivi de chantier.</p>
+                <span class="text-[10px] text-brand-400 font-bold uppercase tracking-widest">Le réseau social camerounais</span>
+                <h1 class="text-xl font-black">Découvre, partage et fais grandir ton univers</h1>
+                <p class="text-xs text-slate-400">Connecte-toi, partage tes moments, découvre des créateurs et trouve des commerces près de toi.</p>
             </div>
 
             <div id="artisans-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -150,25 +151,26 @@
             </div>
         </section>
 
+
+        <section id="tab-profile" class="hidden space-y-4">
+          <div class="glass-card rounded-3xl overflow-hidden"><div class="h-28 bg-gradient-to-r from-orange-600 via-rose-600 to-purple-700"></div><div class="px-5 pb-5 -mt-10 relative"><div class="w-20 h-20 rounded-full border-4 border-slate-950 bg-slate-800 flex items-center justify-center text-3xl">👤</div><h2 class="text-xl font-extrabold mt-3">Mon profil MANAS</h2><p class="text-xs text-slate-400 mt-1">Ta page personnelle et professionnelle</p><div class="grid grid-cols-3 gap-2 mt-5 text-center"><div class="bg-slate-900 rounded-xl p-3"><b class="block text-lg">—</b><span class="text-[10px] text-slate-400">Publications</span></div><div class="bg-slate-900 rounded-xl p-3"><b class="block text-lg">—</b><span class="text-[10px] text-slate-400">Abonnés</span></div><div class="bg-slate-900 rounded-xl p-3"><b class="block text-lg">—</b><span class="text-[10px] text-slate-400">Abonnements</span></div></div><button onclick="openAuthModal()" class="mt-4 w-full bg-gradient-to-r from-orange-600 to-rose-600 py-3 rounded-xl text-sm font-bold">Se connecter pour configurer mon profil</button></div></div>
+          <div class="glass-card p-4 rounded-2xl"><h3 class="font-bold mb-2">Mes publications</h3><p class="text-xs text-slate-400">Les contenus du compte apparaîtront ici lorsque le profil sera connecté aux données MANAS.</p></div>
+        </section>
+        <section id="tab-market" class="hidden space-y-4"><div class="glass-card p-5 rounded-2xl"><span class="text-[10px] text-orange-400 uppercase tracking-widest font-bold">Marché local</span><h2 class="text-xl font-black mt-2">Le Cameroun à portée de main</h2><p class="text-xs text-slate-400 mt-2">Découvre les services, restaurants, boutiques et professionnels.</p></div><div class="grid grid-cols-2 gap-3"><button onclick="switchTab('explore')" class="glass-card p-4 rounded-2xl text-left"><span class="text-2xl">🛠️</span><b class="block mt-2 text-sm">Services</b><small class="text-slate-400">Trouver un professionnel</small></button><button onclick="switchTab('explore')" class="glass-card p-4 rounded-2xl text-left"><span class="text-2xl">🍲</span><b class="block mt-2 text-sm">Restaurants</b><small class="text-slate-400">Découvrir les adresses</small></button><button onclick="switchTab('explore')" class="glass-card p-4 rounded-2xl text-left"><span class="text-2xl">🛍️</span><b class="block mt-2 text-sm">Boutiques</b><small class="text-slate-400">Produits et commerces</small></button><button onclick="switchTab('explore')" class="glass-card p-4 rounded-2xl text-left"><span class="text-2xl">🏠</span><b class="block mt-2 text-sm">Immobilier</b><small class="text-slate-400">Logements et terrains</small></button></div><p class="text-[11px] text-slate-500">Les annonces réelles dépendent des données publiées.</p></section>
+        <section id="tab-publish" class="hidden space-y-4"><div class="glass-card p-5 rounded-2xl"><h2 class="text-xl font-black">Créer une publication</h2><p class="text-xs text-slate-400 mt-2">Partage une idée, une photo, une vidéo ou une offre professionnelle.</p></div><div class="grid grid-cols-2 gap-3"><button onclick="openAuthModal()" class="glass-card p-5 rounded-2xl text-left"><span class="text-2xl">📷</span><b class="block mt-2">Photo</b><small class="text-slate-400">Partager un moment</small></button><button onclick="switchTab('reels')" class="glass-card p-5 rounded-2xl text-left"><span class="text-2xl">🎬</span><b class="block mt-2">Reel / vidéo</b><small class="text-slate-400">Voir les vidéos</small></button><button onclick="openAuthModal()" class="glass-card p-5 rounded-2xl text-left"><span class="text-2xl">🟠</span><b class="block mt-2">Statut</b><small class="text-slate-400">Partager 24 heures</small></button><button onclick="switchTab('market')" class="glass-card p-5 rounded-2xl text-left"><span class="text-2xl">🛍️</span><b class="block mt-2">Annonce</b><small class="text-slate-400">Présenter une offre</small></button></div><button onclick="openAuthModal()" class="w-full bg-gradient-to-r from-orange-600 to-rose-600 py-3 rounded-xl font-bold">Connexion pour publier</button></section>
+        <section id="tab-menu" class="hidden space-y-3"><div class="glass-card p-5 rounded-2xl"><h2 class="text-xl font-black">Mon espace MANAS</h2><p class="text-xs text-slate-400 mt-1">Ton compte et tes outils</p></div><button onclick="switchTab('profile')" class="glass-card rounded-xl p-4 w-full text-left">👤　Mon profil <span class="float-right">›</span></button><button onclick="switchTab('publish')" class="glass-card rounded-xl p-4 w-full text-left">＋　Créer une publication <span class="float-right">›</span></button><button onclick="switchTab('market')" class="glass-card rounded-xl p-4 w-full text-left">🛍️　Marketplace <span class="float-right">›</span></button><button onclick="switchTab('lidar')" class="glass-card rounded-xl p-4 w-full text-left">📐　Outils professionnels <span class="float-right">›</span></button><button onclick="openAuthModal()" class="glass-card rounded-xl p-4 w-full text-left">⚙️　Connexion / paramètres <span class="float-right">›</span></button></section>
+
     </main>
 
-    <!-- BOTTOM NAVBAR MOBILE -->
-    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800 px-2 py-2 flex justify-around items-center z-50">
-        <button onclick="switchTab('explore')" id="btn-explore" class="flex flex-col items-center text-brand-500 text-[10px] font-bold">
-            <i data-lucide="compass" class="w-5 h-5 mb-0.5"></i> Explorer
-        </button>
-        <button onclick="switchTab('reels')" id="btn-reels" class="flex flex-col items-center text-slate-400 text-[10px]">
-            <i data-lucide="video" class="w-5 h-5 mb-0.5"></i> Réels
-        </button>
-        <button onclick="switchTab('lidar')" id="btn-lidar" class="flex flex-col items-center text-slate-400 text-[10px]">
-            <i data-lucide="scan" class="w-5 h-5 mb-0.5"></i> Scan 3D
-        </button>
-        <button onclick="switchTab('escrow')" id="btn-escrow" class="flex flex-col items-center text-slate-400 text-[10px]">
-            <i data-lucide="shield" class="w-5 h-5 mb-0.5"></i> Séquestre
-        </button>
-        <button onclick="switchTab('chat')" id="btn-chat" class="flex flex-col items-center text-slate-400 text-[10px]">
-            <i data-lucide="message-square" class="w-5 h-5 mb-0.5"></i> Chat
-        </button>
+    <!-- NAVIGATION MANAS : 7 ECRANS -->
+    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800 px-1 py-2 grid grid-cols-7 items-center z-50">
+      <button onclick="switchTab('explore')" id="btn-explore" class="flex flex-col items-center text-orange-400 text-[9px] font-bold"><i data-lucide="house" class="w-5 h-5 mb-0.5"></i>Accueil</button>
+      <button onclick="switchTab('reels')" id="btn-reels" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="clapperboard" class="w-5 h-5 mb-0.5"></i>Reels</button>
+      <button onclick="switchTab('profile')" id="btn-profile" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="user-round" class="w-5 h-5 mb-0.5"></i>Profil</button>
+      <button onclick="switchTab('market')" id="btn-market" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="store" class="w-5 h-5 mb-0.5"></i>Marché</button>
+      <button onclick="switchTab('chat')" id="btn-chat" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="message-circle" class="w-5 h-5 mb-0.5"></i>Messages</button>
+      <button onclick="switchTab('publish')" id="btn-publish" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="plus-circle" class="w-5 h-5 mb-0.5"></i>Publier</button>
+      <button onclick="switchTab('menu')" id="btn-menu" class="flex flex-col items-center text-slate-400 text-[9px]"><i data-lucide="menu" class="w-5 h-5 mb-0.5"></i>Menu</button>
     </nav>
 
     <!-- MODAL AUTH -->
@@ -187,7 +189,7 @@
         lucide.createIcons();
 
         function switchTab(tab) {
-            ['explore', 'reels', 'lidar', 'escrow', 'chat'].forEach(t => {
+            ['explore', 'reels', 'lidar', 'escrow', 'chat', 'profile', 'market', 'publish', 'menu'].forEach(t => {
                 const el = document.getElementById('tab-' + t);
                 const btn = document.getElementById('btn-' + t);
                 if(el) el.classList.add('hidden');

@@ -1,263 +1,240 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark h-full">
+<html lang="fr" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MANAS — Global OS Artisans & BTP</title>
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            500: '#f97316',
-                            600: '#ea580c',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- Three.js pour le scan 3D LiDAR -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .gradient-text { background: linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .active-tap:active { transform: scale(0.96); transition: transform 0.1s ease; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070b11">
+<title>MANAS — Le premier réseau social camerounais</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { darkMode: 'class', theme: { extend: { colors: {
+  brand: { 400: '#ff8a3d', 500: '#ff6a1a', 600: '#f04e0c' },
+  ink: { 950: '#070b11', 900: '#0d131c', 800: '#141c28', 700: '#1e2836' }
+}, fontFamily: { sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'] } } } };
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.451.0/dist/umd/lucide.min.js"></script>
+<style>
+  body { -webkit-tap-highlight-color: transparent; }
+  .card { background: #0d131c; border: 1px solid rgba(255,255,255,.07); }
+  .fab { background: linear-gradient(135deg, #ff7a1a, #f0360c); box-shadow: 0 6px 20px rgba(255,90,20,.45); }
+  .btn { background: linear-gradient(90deg, #ff6a1a, #f0360c); }
+  .hide-sb::-webkit-scrollbar { display: none; }
+  .tap:active { transform: scale(.96); }
+  .ph { background: linear-gradient(135deg, #1e2836, #2b1a12); }
+  .logo-c { background: conic-gradient(from 200deg, #ff8a3d, #f0360c, #ff8a3d); -webkit-mask: radial-gradient(circle 9px at 62% 50%, transparent 98%, #000 100%); }
+</style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-[100dvh] flex flex-col justify-between pb-20">
+<body class="bg-ink-950 text-slate-100 font-sans antialiased">
+<div id="shell" class="mx-auto max-w-md min-h-[100dvh] relative bg-ink-950">
+  <main id="app" class="pb-24"></main>
+  <nav id="nav" class="fixed bottom-0 inset-x-0 mx-auto max-w-md bg-ink-900/95 backdrop-blur border-t border-white/10 z-30 px-2 pt-2 pb-[max(.5rem,env(safe-area-inset-bottom))] grid grid-cols-5 items-end"></nav>
+  <div id="sheet" class="hidden fixed inset-0 z-40 bg-black/70 items-end justify-center"></div>
+</div>
 
-    <!-- HEADER -->
-    <header class="sticky top-0 z-40 glass border-b border-slate-800/80 px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-500 to-purple-600 flex items-center justify-center shadow-lg">
-                <i data-lucide="layers" class="w-4 h-4 text-white"></i>
-            </div>
-            <span class="text-lg font-extrabold tracking-tight gradient-text">MANAS</span>
-            <span class="text-[9px] uppercase px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">OS</span>
-        </div>
+<script>
+/* ============ 1. DATA (source unique — à brancher sur Supabase) ============ */
+const IMG = {
+  food: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=70',
+  shop: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&q=70',
+  home: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&q=70',
+  hotel: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=70',
+  city: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=800&q=70',
+  woman: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&q=70',
+  man: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=70'
+};
+const DATA = {
+  me: { name: 'Tchoyi Eric', handle: '@tchoyieric', stats: { posts: '245', followers: '12,8 K', following: '356' },
+        bio: [['map-pin', 'Yaoundé, Cameroun'], ['briefcase', 'Entrepreneur | Créateur de contenu'], ['lightbulb', 'La réussite est une question d’action.'], ['link', 'lien.bio/tchoyieric']] },
+  categories: [
+    { id: 'Services', icon: 'wrench', color: 'bg-sky-500' },
+    { id: 'Restaurants', icon: 'utensils', color: 'bg-emerald-700' },
+    { id: 'Boutiques', icon: 'shopping-bag', color: 'bg-rose-500' },
+    { id: 'Immobilier', icon: 'building-2', color: 'bg-amber-400' }
+  ],
+  stories: ['Votre statut', 'MboaStyle', 'Le Bon Goût', 'Artisan Pro', 'CamerMall'],
+  market: [
+    { name: 'Le Bon Goût', meta: 'Restaurant · Yaoundé', cat: 'Restaurants', rating: '4,8', img: IMG.food },
+    { name: 'MboaStyle', meta: 'Boutique · Douala', cat: 'Boutiques', rating: '4,7', img: IMG.shop },
+    { name: 'Rénov’Home', meta: 'Services · Yaoundé', cat: 'Services', rating: '4,6', img: IMG.home },
+    { name: 'Résidence Le Prestige', meta: 'Hôtel · Douala', cat: 'Immobilier', rating: '4,5', img: IMG.hotel }
+  ],
+  chats: [
+    { name: 'Marie Nkono', last: 'Merci beaucoup ! 🙏', time: '10:24', unread: 2, group: 'Non lues' },
+    { name: 'Le Bon Goût', last: 'Votre commande est prête ! 🍽️', time: '09:50', verified: true },
+    { name: 'Tchoyi Eric', last: 'C’est parfait, merci !', time: 'Hier', verified: true },
+    { name: 'MboaStyle', last: 'Nouveautés disponibles !', time: 'Hier', verified: true },
+    { name: 'Famille', last: 'Photo', time: 'Lun', group: 'Groupes' }
+  ],
+  menu: [
+    ['file-text', 'Mes publications'], ['megaphone', 'Mes annonces'], ['circle-dashed', 'Mes statuts'],
+    ['heart', 'Mes favoris'], ['settings', 'Paramètres'], ['circle-help', 'Aide & Support']
+  ],
+  tabs: [
+    { id: 'home', icon: 'house', label: 'Accueil' }, { id: 'reels', icon: 'clapperboard', label: 'Reels' },
+    { id: 'create', fab: true }, { id: 'messages', icon: 'message-circle', label: 'Messages', badge: 3 },
+    { id: 'profile', icon: 'user', label: 'Profil' }
+  ]
+};
 
-        <button onclick="openAuthModal()" id="auth-btn" class="active-tap bg-gradient-to-r from-brand-600 to-brand-500 px-3.5 py-2 rounded-xl text-xs font-bold text-white shadow-lg flex items-center space-x-1">
-            <i data-lucide="user" class="w-3.5 h-3.5"></i>
-            <span id="auth-btn-text">Connexion</span>
-        </button>
-    </header>
+/* ============ 2. COMPOSANTS (fonctions pures → HTML) ============ */
+const icon = (n, c = 'w-5 h-5') => `<i data-lucide="${n}" class="${c}"></i>`;
+const photo = (src, c = '') => `<div class="ph ${c}"><img src="${src}" alt="" loading="lazy" class="w-full h-full object-cover" onerror="this.remove()"></div>`;
+const initials = n => n.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const avatar = (name, size = 'w-11 h-11', ring = false) =>
+  `<div class="${size} shrink-0 rounded-full grid place-items-center text-xs font-bold bg-gradient-to-br from-brand-400 to-rose-700 ${ring ? 'ring-2 ring-brand-500 ring-offset-2 ring-offset-ink-950' : ''}">${initials(name)}</div>`;
+const verified = () => icon('badge-check', 'w-3.5 h-3.5 text-sky-400 inline');
+const logo = (s = 'text-lg') => `<div class="flex items-center gap-1.5"><div class="logo-c w-7 h-7 rounded-full"></div><span class="${s} font-extrabold">MANAS</span></div>`;
+const chip = (label, active, action) =>
+  `<button data-action="${action}" class="tap px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${active ? 'bg-brand-500 text-white' : 'bg-ink-800 text-slate-300'}">${label}</button>`;
+const topBar = (right = '') => `<header class="sticky top-0 z-20 bg-ink-950/90 backdrop-blur px-4 py-3 flex items-center justify-between">${logo()}<div class="flex items-center gap-3">${right}</div></header>`;
+const backBar = (title, right = '') => `<header class="sticky top-0 z-20 bg-ink-950/90 backdrop-blur px-4 py-3 flex items-center justify-between"><div class="flex items-center gap-3"><button data-nav="home" class="tap">${icon('arrow-left')}</button><h1 class="font-bold">${title}</h1></div>${right}</header>`;
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4">
+/* ============ 3. VUES ============ */
+const Views = {
+  home() {
+    const cats = DATA.categories.map(c => `<button data-nav="market" data-filter="${c.id}" class="tap flex flex-col items-center gap-1.5 text-[11px] text-slate-300">
+      <span class="w-14 h-14 rounded-2xl grid place-items-center ${c.color}">${icon(c.icon, 'w-7 h-7 text-white')}</span>${c.id}</button>`).join('');
+    const stories = DATA.stories.map((s, i) => `<div class="flex flex-col items-center gap-1 w-16 shrink-0 text-[10px] text-slate-400">${avatar(s, 'w-14 h-14', i > 0)}<span class="truncate w-full text-center">${s}</span></div>`).join('');
+    return `${topBar(`<button class="tap">${icon('search')}</button><button class="tap relative">${icon('bell')}</button><button data-nav="menu" class="tap">${avatar(DATA.me.name, 'w-8 h-8')}</button>`)}
+    <div class="px-4 space-y-5">
+      <section class="card rounded-2xl overflow-hidden relative flex">
+        <div class="p-4 w-3/5 z-10"><h2 class="font-extrabold leading-tight">Découvre, partage, consomme local</h2><p class="text-[11px] text-slate-400 mt-2">Tout ce dont tu as besoin au Cameroun, ou même endroit !</p></div>
+        ${photo(IMG.city, 'absolute right-0 inset-y-0 w-2/5 opacity-80')}
+      </section>
+      <label class="flex items-center gap-2 bg-ink-800 rounded-xl px-3 py-2.5 text-xs text-slate-400">${icon('search', 'w-4 h-4')}<input class="bg-transparent flex-1 outline-none" placeholder="Rechercher un service, un produit, un artisan…"></label>
+      <button class="tap flex items-center gap-2 bg-ink-800 rounded-xl px-3 py-2 text-xs font-semibold">${icon('map-pin', 'w-4 h-4 text-brand-500')}Yaoundé${icon('chevron-down', 'w-4 h-4')}</button>
+      <div class="grid grid-cols-4 gap-2">${cats}</div>
+      <section><div class="flex justify-between text-xs mb-2"><b>Stories / Statuts</b><span class="text-brand-500">Voir tout ›</span></div><div class="flex gap-3 overflow-x-auto hide-sb">${stories}</div></section>
+      <article class="card rounded-2xl p-3 space-y-2">
+        <div class="flex items-center gap-2">${avatar('MboaStyle', 'w-9 h-9')}<div class="text-xs"><b>MboaStyle</b> ${verified()}<div class="text-slate-500 text-[10px]">2 h</div></div></div>
+        <p class="text-xs">Nouveau look disponible ! Qualité · Style · Made in Cameroon 🇨🇲</p>
+        <div class="grid grid-cols-2 gap-2">${photo(IMG.shop, 'h-28 rounded-xl overflow-hidden')}${photo(IMG.woman, 'h-28 rounded-xl overflow-hidden')}</div>
+      </article>
+    </div>`;
+  },
 
-        <!-- TAB 1 : EXPLORER -->
-        <section id="tab-explore" class="space-y-4">
-            <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2">
-                <span class="text-[10px] text-brand-400 font-bold uppercase tracking-widest">Plateforme BTP & Artisans</span>
-                <h1 class="text-xl font-black">Trouvez un artisan certifié</h1>
-                <p class="text-xs text-slate-400">Séquestre sécurisé, modélisation 3D et suivi de chantier.</p>
-            </div>
+  reels() {
+    return `<section class="relative h-[calc(100dvh-5rem)] overflow-hidden">
+      ${photo(IMG.woman, 'absolute inset-0')}
+      <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40"></div>
+      <div class="relative z-10 flex justify-between items-center px-4 pt-4 text-sm"><span></span><div class="flex gap-5"><b class="border-b-2 border-brand-500 pb-1">Pour toi</b><span class="text-slate-300">Abonnements</span></div>${icon('search')}</div>
+      <div class="absolute right-3 bottom-28 z-10 flex flex-col items-center gap-5 text-[11px]">
+        <div class="text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center text-rose-500">${icon('heart', 'w-6 h-6 fill-current')}</span>12,4 K</div>
+        <div class="text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center">${icon('message-circle')}</span>342</div>
+        <div class="text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center">${icon('share-2')}</span>1,2 K</div>
+      </div>
+      <div class="absolute bottom-6 inset-x-4 z-10 space-y-2 text-xs">
+        <span class="inline-flex items-center gap-1 bg-black/50 rounded-full px-2 py-1">${icon('map-pin', 'w-3 h-3')}Yaoundé</span>
+        <div class="flex items-center gap-2"><b>@feel_bella</b><button class="border border-white/60 rounded-full px-3 py-0.5">S’abonner</button></div>
+        <p>La beauté camerounaise n’a pas de frontière #Cameroun #Yaoundé #MadeInCameroon</p>
+        <p class="text-slate-300 flex items-center gap-1">${icon('music', 'w-3 h-3')}Son original · feel_bella</p>
+      </div>
+    </section>`;
+  },
 
-            <div id="artisans-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-sm text-white">Atelier Nlong</h4>
-                        <span class="bg-brand-500/20 text-brand-400 text-[10px] px-2 py-0.5 rounded-full font-bold">Vérifié</span>
-                    </div>
-                    <p class="text-xs text-slate-400">Menuiserie & Agencement d'intérieur • Bastos, Yaoundé</p>
-                    <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-                        <span class="text-xs font-bold text-brand-400">15 000 FCFA</span>
-                        <button onclick="switchTab('chat')" class="bg-brand-500 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white active-tap">Contacter</button>
-                    </div>
-                </div>
+  profile() {
+    const { me } = DATA;
+    const stats = [['posts', 'Publications'], ['followers', 'Abonnés'], ['following', 'Abonnements']]
+      .map(([k, l]) => `<div class="text-center"><b class="text-lg">${me.stats[k]}</b><div class="text-[11px] text-slate-400">${l}</div></div>`).join('');
+    const bio = me.bio.map(([i, t]) => `<p class="flex items-center gap-2 text-xs">${icon(i, 'w-3.5 h-3.5 text-brand-500')}${t}</p>`).join('');
+    return `<div class="relative h-28">${photo(IMG.city, 'absolute inset-0')}<div class="absolute inset-0 bg-gradient-to-b from-black/50 to-ink-950"></div>
+      <button data-nav="home" class="tap absolute top-3 left-4">${icon('arrow-left')}</button></div>
+    <div class="px-4 -mt-10 relative space-y-3">
+      <div class="w-20 h-20 rounded-full ring-4 ring-ink-950 overflow-hidden">${photo(IMG.man, 'w-full h-full')}</div>
+      <h1 class="text-xl font-extrabold">${me.name} ${verified()}</h1><p class="text-xs text-slate-400 -mt-2">${me.handle}</p>
+      <div class="grid grid-cols-2 gap-3"><button class="btn tap rounded-xl py-2 text-sm font-bold">S’abonner</button><button class="tap rounded-xl py-2 text-sm bg-ink-800 border border-white/10">Message</button></div>
+      <div class="grid grid-cols-3 py-2">${stats}</div><div class="space-y-1.5">${bio}</div>
+      <div class="flex justify-around border-b border-white/10 text-xs pt-2"><b class="border-b-2 border-brand-500 pb-2 text-brand-500">Publications</b><span class="text-slate-400">Reels</span><span class="text-slate-400">À propos</span></div>
+      <div class="grid grid-cols-3 gap-1">${[IMG.man, IMG.city, IMG.woman].map(s => photo(s, 'h-28')).join('')}</div>
+    </div>`;
+  },
 
-                <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-sm text-white">BatiPro BTP</h4>
-                        <span class="bg-brand-500/20 text-brand-400 text-[10px] px-2 py-0.5 rounded-full font-bold">Certifié</span>
-                    </div>
-                    <p class="text-xs text-slate-400">Gros œuvre & Maçonnerie générale • Odza, Yaoundé</p>
-                    <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-                        <span class="text-xs font-bold text-brand-400">50 000 FCFA</span>
-                        <button onclick="switchTab('chat')" class="bg-brand-500 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white active-tap">Contacter</button>
-                    </div>
-                </div>
-            </div>
-        </section>
+  market(state) {
+    const f = state.filter;
+    const chips = ['Tous', ...DATA.categories.map(c => c.id)].map(c => chip(c, f === c, `filter:${c}`)).join('');
+    const items = DATA.market.filter(m => f === 'Tous' || m.cat === f).map(m => `
+      <article class="card rounded-2xl overflow-hidden">
+        <div class="relative">${photo(m.img, 'h-28')}<span class="absolute bottom-1.5 left-2 text-[11px] bg-black/60 rounded px-1.5">★ ${m.rating}</span></div>
+        <div class="p-2.5 text-xs"><b>${m.name}</b><p class="text-slate-400 text-[10px]">${m.meta}</p><p class="text-emerald-400 text-[10px] mt-1">● Ouvert</p></div>
+      </article>`).join('');
+    return `${backBar('Marché', icon('search'))}
+    <div class="px-4 space-y-4"><div class="flex gap-2 overflow-x-auto hide-sb">${chips}</div>
+    <div class="grid grid-cols-2 gap-3">${items || '<p class="col-span-2 text-center text-sm text-slate-500 py-10">Aucun résultat dans cette catégorie.</p>'}</div></div>`;
+  },
 
-        <!-- TAB 2 : REELS -->
-        <section id="tab-reels" class="hidden max-w-sm mx-auto space-y-3">
-            <div class="relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 h-[65dvh] flex flex-col justify-end p-4">
-                <img src="https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover opacity-60">
-                <div class="relative z-10 space-y-2">
-                    <h4 class="font-bold text-sm text-white">Atelier Nlong</h4>
-                    <p class="text-xs text-slate-300">Fabrication sur mesure d'une cuisine américaine moderne à Yaoundé.</p>
-                    <button onclick="switchTab('chat')" class="w-full bg-brand-500 py-2 rounded-xl text-xs font-bold text-white active-tap">Contacter l'artisan</button>
-                </div>
-            </div>
-        </section>
+  messages(state) {
+    const f = state.msgFilter;
+    const list = DATA.chats.filter(c => f === 'Toutes' || c.group === f || (f === 'Non lues' && c.unread)).map(c => `
+      <div class="flex items-center gap-3 py-3">${avatar(c.name, 'w-12 h-12')}
+        <div class="flex-1 min-w-0 text-sm"><b>${c.name}</b> ${c.verified ? verified() : ''}<p class="text-xs text-slate-400 truncate">${c.last}</p></div>
+        <div class="text-[10px] text-slate-500 text-right space-y-1"><div>${c.time}</div>${c.unread ? `<span class="inline-grid place-items-center w-5 h-5 rounded-full bg-brand-500 text-white font-bold">${c.unread}</span>` : ''}</div>
+      </div>`).join('');
+    const chips = ['Toutes', 'Non lues', 'Groupes'].map(c => chip(c, f === c, `msg:${c}`)).join('');
+    return `<header class="px-4 py-3 flex justify-between items-center"><h1 class="text-xl font-extrabold">Messages</h1>${icon('search')}</header>
+    <div class="px-4"><div class="flex gap-2 mb-2">${chips}</div><div class="divide-y divide-white/5">${list}</div></div>`;
+  },
 
-        <!-- TAB 3 : SCAN 3D LIDAR -->
-        <section id="tab-lidar" class="hidden space-y-4">
-            <div class="glass-card p-4 rounded-2xl border border-slate-800">
-                <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-2">Scan 3D & Inspection</h2>
-                <div id="canvas-3d" class="w-full h-64 bg-slate-950 rounded-xl overflow-hidden border border-slate-800"></div>
-            </div>
-        </section>
+  menu() {
+    const rows = DATA.menu.map(([i, l]) => `<button class="tap w-full flex items-center gap-3 py-3.5 text-sm border-b border-white/5">${icon(i, 'w-5 h-5 text-slate-300')}<span class="flex-1 text-left">${l}</span>${icon('chevron-right', 'w-4 h-4 text-slate-500')}</button>`).join('');
+    return `${backBar('Mon espace')}<div class="px-4">
+      <button data-nav="profile" class="tap w-full flex items-center gap-3 py-3 border-b border-white/5">${avatar(DATA.me.name, 'w-11 h-11')}<div class="flex-1 text-left text-sm"><b>${DATA.me.name}</b> ${verified()}<p class="text-xs text-slate-400">${DATA.me.handle}</p></div>${icon('chevron-right', 'w-4 h-4 text-slate-500')}</button>
+      ${rows}<button class="tap flex items-center gap-3 py-4 text-sm text-rose-500">${icon('log-out')}Se déconnecter</button></div>`;
+  }
+};
 
-        <!-- TAB 4 : SÉQUESTRE -->
-        <section id="tab-escrow" class="hidden space-y-4">
-            <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
-                <h2 class="text-base font-bold">Smart Contract Escrow</h2>
-                <div class="p-3 bg-slate-900 rounded-xl flex justify-between items-center text-xs">
-                    <span>Jalon 1 : Fondations</span>
-                    <span class="text-emerald-400 font-bold">✓ Libéré</span>
-                </div>
-                <div class="p-3 bg-slate-900 rounded-xl flex justify-between items-center text-xs">
-                    <span>Jalon 2 : Finitions bois</span>
-                    <span class="text-brand-400 font-bold">🔒 En séquestre</span>
-                </div>
-            </div>
-        </section>
+/* ============ 4. FEUILLE « PUBLIER » ============ */
+const Sheet = {
+  el: () => document.getElementById('sheet'),
+  open() {
+    const types = [['image', 'Photo'], ['video', 'Vidéo'], ['clapperboard', 'Reel'], ['circle-dashed', 'Statut']]
+      .map(([i, l]) => `<button class="tap flex flex-col items-center gap-1.5 text-xs"><span class="w-14 h-14 rounded-full bg-ink-700 grid place-items-center">${icon(i, 'w-6 h-6')}</span>${l}</button>`).join('');
+    this.el().innerHTML = `<div class="w-full max-w-md bg-ink-900 rounded-t-3xl p-5 space-y-4">
+      <div class="flex items-center gap-3"><button data-action="close">${icon('x')}</button><b>Créer une publication</b></div>
+      <div class="grid grid-cols-4">${types}</div>
+      <textarea placeholder="Quoi de neuf ?" class="w-full h-24 bg-ink-800 rounded-xl p-3 text-sm outline-none resize-none"></textarea>
+      <p class="flex items-center gap-2 text-xs text-slate-400">${icon('map-pin', 'w-4 h-4 text-brand-500')}Ajouter une localisation</p>
+      <button data-action="close" class="btn tap w-full rounded-xl py-3 font-bold">Publier</button>
+      <p class="text-center text-[11px] text-slate-500">Partage ton quotidien, ton business, tes idées, tes talents…</p></div>`;
+    this.el().classList.replace('hidden', 'flex'); lucide.createIcons();
+  },
+  close() { this.el().classList.replace('flex', 'hidden'); }
+};
 
-        <!-- TAB 5 : CHAT -->
-        <section id="tab-chat" class="hidden space-y-3">
-            <div class="glass-card rounded-2xl p-4 border border-slate-800 space-y-3">
-                <h4 class="font-bold text-xs">Messagerie — Atelier Nlong</h4>
-                <div id="chat-messages" class="bg-slate-900 p-3 rounded-xl text-xs space-y-2 h-44 overflow-y-auto">
-                    <p class="text-slate-300"><strong>Artisan :</strong> Bonjour ! Vos plans 3D sont validés.</p>
-                </div>
-                <div class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="Votre message..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
-                    <button onclick="sendChatMessage()" class="bg-brand-500 px-4 py-2 rounded-xl text-xs font-bold text-white active-tap">Envoyer</button>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- BOTTOM NAVBAR MOBILE -->
-    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800 px-2 py-2 flex justify-around items-center z-50">
-        <button onclick="switchTab('explore')" id="btn-explore" class="flex flex-col items-center text-brand-500 text-[10px] font-bold">
-            <i data-lucide="compass" class="w-5 h-5 mb-0.5"></i> Explorer
-        </button>
-        <button onclick="switchTab('reels')" id="btn-reels" class="flex flex-col items-center text-slate-400 text-[10px]">
-            <i data-lucide="video" class="w-5 h-5 mb-0.5"></i> Réels
-        </button>
-        <button onclick="switchTab('lidar')" id="btn-lidar" class="flex flex-col items-center text-slate-400 text-[10px]">
-            <i data-lucide="scan" class="w-5 h-5 mb-0.5"></i> Scan 3D
-        </button>
-        <button onclick="switchTab('escrow')" id="btn-escrow" class="flex flex-col items-center text-slate-400 text-[10px]">
-            <i data-lucide="shield" class="w-5 h-5 mb-0.5"></i> Séquestre
-        </button>
-        <button onclick="switchTab('chat')" id="btn-chat" class="flex flex-col items-center text-slate-400 text-[10px]">
-            <i data-lucide="message-square" class="w-5 h-5 mb-0.5"></i> Chat
-        </button>
-    </nav>
-
-    <!-- MODAL AUTH -->
-    <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
-        <div class="glass-card p-6 rounded-2xl border border-slate-800 max-w-xs w-full space-y-4 relative">
-            <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
-            <h3 class="text-lg font-bold text-center gradient-text">Connexion MANAS</h3>
-            <input type="email" id="auth-email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
-            <input type="password" id="auth-password" placeholder="Mot de passe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
-            <button onclick="handleLogin()" class="w-full bg-brand-500 py-2.5 rounded-xl text-xs font-bold text-white shadow-lg active-tap">Se connecter</button>
-        </div>
-    </div>
-
-    <!-- LOGIC -->
-    <script>
-        lucide.createIcons();
-
-        function switchTab(tab) {
-            ['explore', 'reels', 'lidar', 'escrow', 'chat'].forEach(t => {
-                const el = document.getElementById('tab-' + t);
-                const btn = document.getElementById('btn-' + t);
-                if(el) el.classList.add('hidden');
-                if(btn) {
-                    btn.classList.remove('text-brand-500', 'font-bold');
-                    btn.classList.add('text-slate-400');
-                }
-            });
-
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            const activeBtn = document.getElementById('btn-' + tab);
-            if(activeBtn) {
-                activeBtn.classList.remove('text-slate-400');
-                activeBtn.classList.add('text-brand-500', 'font-bold');
-            }
-
-            if (tab === 'lidar' && !window.threeLoaded) {
-                init3D();
-                window.threeLoaded = true;
-            }
-        }
-
-        function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-
-        function handleLogin() {
-            const email = document.getElementById('auth-email').value;
-            if(!email) {
-                alert("Veuillez saisir votre adresse email.");
-                return;
-            }
-            document.getElementById('auth-btn-text').innerText = "Mon Compte";
-            alert("Connexion réussie ! Bienvenue " + email);
-            closeAuthModal();
-        }
-
-        function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const box = document.getElementById('chat-messages');
-            if(input.value.trim() !== '') {
-                box.innerHTML += `<p class="text-brand-400"><strong>Vous :</strong> ${input.value}</p>`;
-                input.value = '';
-                box.scrollTop = box.scrollHeight;
-            }
-        }
-
-        function init3D() {
-            const container = document.getElementById('canvas-3d');
-            if(!container) return;
-            const scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x020617);
-            const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(0, 3, 5);
-            const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(renderer.domElement);
-
-            const geo = new THREE.BoxGeometry(2, 2, 2);
-            const mat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true });
-            const cube = new THREE.Mesh(geo, mat);
-            scene.add(cube);
-
-            function animate() {
-                requestAnimationFrame(animate);
-                cube.rotation.x += 0.01;
-                cube.rotation.y += 0.01;
-                renderer.render(scene, camera);
-            }
-            animate();
-        }
-    </script>
+/* ============ 5. ROUTEUR & ÉTAT ============ */
+const App = {
+  state: { view: 'home', filter: 'Tous', msgFilter: 'Toutes' },
+  navView: v => ({ market: 'home', menu: 'profile' }[v] || v),
+  render() {
+    const { view } = this.state;
+    document.getElementById('app').innerHTML = Views[view](this.state);
+    this.renderNav(); lucide.createIcons(); window.scrollTo(0, 0);
+  },
+  renderNav() {
+    const active = this.navView(this.state.view);
+    document.getElementById('nav').innerHTML = DATA.tabs.map(t => t.fab
+      ? `<div class="flex justify-center"><button data-action="create" class="fab tap -mt-6 w-14 h-14 rounded-full grid place-items-center">${icon('plus', 'w-7 h-7 text-white')}</button></div>`
+      : `<button data-nav="${t.id}" class="tap relative flex flex-col items-center gap-0.5 text-[10px] ${active === t.id ? 'text-brand-500 font-bold' : 'text-slate-500'}">
+          ${icon(t.icon)}${t.label}${t.badge ? `<span class="absolute -top-1 right-4 min-w-4 h-4 px-1 rounded-full bg-brand-500 text-white text-[9px] grid place-items-center">${t.badge}</span>` : ''}</button>`).join('');
+  },
+  go(view, filter) { this.state.view = view; if (filter) this.state.filter = filter; this.render(); },
+  handle(action) {
+    const [type, value] = action.split(':');
+    if (type === 'create') Sheet.open();
+    if (type === 'close') Sheet.close();
+    if (type === 'filter') { this.state.filter = value; this.render(); }
+    if (type === 'msg') { this.state.msgFilter = value; this.render(); }
+  },
+  init() {
+    document.addEventListener('click', e => {
+      const nav = e.target.closest('[data-nav]'), act = e.target.closest('[data-action]');
+      if (act) return this.handle(act.dataset.action);
+      if (nav) this.go(nav.dataset.nav, nav.dataset.filter);
+    });
+    this.render();
+  }
+};
+App.init();
+</script>
 </body>
 </html>

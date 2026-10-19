@@ -14,6 +14,7 @@ tailwind.config = { darkMode: 'class', theme: { extend: { colors: {
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.451.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
   body { -webkit-tap-highlight-color: transparent; }
   .card { background: #0d131c; border: 1px solid rgba(255,255,255,.07); }
@@ -30,211 +31,184 @@ tailwind.config = { darkMode: 'class', theme: { extend: { colors: {
   <main id="app" class="pb-24"></main>
   <nav id="nav" class="fixed bottom-0 inset-x-0 mx-auto max-w-md bg-ink-900/95 backdrop-blur border-t border-white/10 z-30 px-2 pt-2 pb-[max(.5rem,env(safe-area-inset-bottom))] grid grid-cols-5 items-end"></nav>
   <div id="sheet" class="hidden fixed inset-0 z-40 bg-black/70 items-end justify-center"></div>
+  <div id="toast" class="hidden fixed top-4 inset-x-4 mx-auto max-w-sm z-50 bg-ink-700 border border-white/10 rounded-xl px-4 py-3 text-sm text-center"></div>
 </div>
 
 <script>
-/* ============ 1. DATA (source unique — à brancher sur Supabase) ============ */
-const IMG = {
-  food: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=70',
-  shop: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&q=70',
-  home: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500&q=70',
-  hotel: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&q=70',
-  city: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=800&q=70',
-  woman: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&q=70',
-  man: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=70'
-};
-const DATA = {
-  me: { name: 'Tchoyi Eric', handle: '@tchoyieric', stats: { posts: '245', followers: '12,8 K', following: '356' },
-        bio: [['map-pin', 'Yaoundé, Cameroun'], ['briefcase', 'Entrepreneur | Créateur de contenu'], ['lightbulb', 'La réussite est une question d’action.'], ['link', 'lien.bio/tchoyieric']] },
-  categories: [
-    { id: 'Services', icon: 'wrench', color: 'bg-sky-500' },
-    { id: 'Restaurants', icon: 'utensils', color: 'bg-emerald-700' },
-    { id: 'Boutiques', icon: 'shopping-bag', color: 'bg-rose-500' },
-    { id: 'Immobilier', icon: 'building-2', color: 'bg-amber-400' }
-  ],
-  stories: ['Votre statut', 'MboaStyle', 'Le Bon Goût', 'Artisan Pro', 'CamerMall'],
-  market: [
-    { name: 'Le Bon Goût', meta: 'Restaurant · Yaoundé', cat: 'Restaurants', rating: '4,8', img: IMG.food },
-    { name: 'MboaStyle', meta: 'Boutique · Douala', cat: 'Boutiques', rating: '4,7', img: IMG.shop },
-    { name: 'Rénov’Home', meta: 'Services · Yaoundé', cat: 'Services', rating: '4,6', img: IMG.home },
-    { name: 'Résidence Le Prestige', meta: 'Hôtel · Douala', cat: 'Immobilier', rating: '4,5', img: IMG.hotel }
-  ],
-  chats: [
-    { name: 'Marie Nkono', last: 'Merci beaucoup ! 🙏', time: '10:24', unread: 2, group: 'Non lues' },
-    { name: 'Le Bon Goût', last: 'Votre commande est prête ! 🍽️', time: '09:50', verified: true },
-    { name: 'Tchoyi Eric', last: 'C’est parfait, merci !', time: 'Hier', verified: true },
-    { name: 'MboaStyle', last: 'Nouveautés disponibles !', time: 'Hier', verified: true },
-    { name: 'Famille', last: 'Photo', time: 'Lun', group: 'Groupes' }
-  ],
-  menu: [
-    ['file-text', 'Mes publications'], ['megaphone', 'Mes annonces'], ['circle-dashed', 'Mes statuts'],
-    ['heart', 'Mes favoris'], ['settings', 'Paramètres'], ['circle-help', 'Aide & Support']
-  ],
-  tabs: [
-    { id: 'home', icon: 'house', label: 'Accueil' }, { id: 'reels', icon: 'clapperboard', label: 'Reels' },
-    { id: 'create', fab: true }, { id: 'messages', icon: 'message-circle', label: 'Messages', badge: 3 },
-    { id: 'profile', icon: 'user', label: 'Profil' }
+/* ============ 1. CONFIG & DONNÉES DE SECOURS ============ */
+const SUPABASE_URL = 'https://lviddipduhaelxcvyykc.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_j0C8eL1g6hgAcnL4gU_zRg_jvi0bmYH'; // clé publique : la sécurité repose sur les politiques RLS
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const CATEGORIES = [
+  { id: 'Services', icon: 'wrench', color: 'bg-sky-500' }, { id: 'Restaurants', icon: 'utensils', color: 'bg-emerald-700' },
+  { id: 'Boutiques', icon: 'shopping-bag', color: 'bg-rose-500' }, { id: 'Immobilier', icon: 'building-2', color: 'bg-amber-400' }
+];
+const CITIES = ['Toutes les villes', 'Yaoundé', 'Douala'];
+const TABS = [
+  { id: 'home', icon: 'house', label: 'Accueil' }, { id: 'reels', icon: 'clapperboard', label: 'Reels' }, { id: 'create', fab: true },
+  { id: 'messages', icon: 'message-circle', label: 'Messages' }, { id: 'profile', icon: 'user', label: 'Profil' }
+];
+const IMG_FALLBACK = 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=800&q=70';
+const DEMO = { // affiché uniquement si la base est injoignable
+  annonces: [
+    { id: 0, title: 'Le Bon Goût', category: 'Restaurants', city: 'Yaoundé', note_moyenne: 4.8, verified: true, image_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&q=70' },
+    { id: 0, title: 'MboaStyle', category: 'Boutiques', city: 'Douala', note_moyenne: 4.7, verified: true, image_url: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&q=70' }
   ]
 };
 
-/* ============ 2. COMPOSANTS (fonctions pures → HTML) ============ */
+/* ============ 2. UTILITAIRES ============ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const isUuid = s => /^[0-9a-f-]{36}$/i.test(s || '');
+const fcfa = n => n == null ? 'Prix sur demande' : Number(n).toLocaleString('fr-FR') + ' FCFA';
+const ago = d => { const m = Math.max(1, Math.round((Date.now() - new Date(d)) / 60000)); return m < 60 ? `${m} min` : m < 1440 ? `${Math.round(m / 60)} h` : `${Math.round(m / 1440)} j`; };
+const initials = n => (n || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const cleanQuery = q => (q || '').replace(/[%,()*\\]/g, ' ').trim().slice(0, 60);
+const toast = msg => { const t = $('toast'); t.textContent = msg; t.classList.remove('hidden'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.add('hidden'), 2800); };
+
+/* ============ 3. ACCÈS DONNÉES (repository Supabase) ============ */
+// Renvoie `fallback` si la requête échoue, et signale le mode hors ligne.
+async function live(run, fallback) {
+  try { const { data, error } = await run(); if (error) throw error; return data ?? fallback; }
+  catch (e) { console.warn('[MANAS]', e.message || e); App.offline = true; return fallback; }
+}
+const count = (table, col, val) => live(async () => { const r = await db.from(table).select('*', { count: 'exact', head: true }).eq(col, val); return { data: r.count, error: r.error }; }, 0);
+const ANNONCE_COLS = 'id,title,category,price,city,description,image_url,video_url,note_moyenne,verified,user_id,created_at';
+
+const Api = {
+  annonces({ cat = 'Tous', city, q, video = false, ids, owner, limit = 20 } = {}) {
+    return live(() => {
+      let r = db.from('annonces').select(ANNONCE_COLS).eq('vendu', false).order('created_at', { ascending: false }).limit(limit);
+      if (cat !== 'Tous') r = r.ilike('category', `%${cat}%`);
+      if (city && !city.startsWith('Toutes')) r = r.ilike('city', `%${city}%`);
+      if (q) r = r.or(`title.ilike.%${q}%,description.ilike.%${q}%`);
+      if (video) r = r.not('video_url', 'is', null);
+      if (ids) r = r.in('id', ids);
+      if (owner) r = r.eq('user_id', owner);
+      return r;
+    }, null);
+  },
+  async profiles(ids) {
+    ids = [...new Set(ids.filter(isUuid))]; if (!ids.length) return {};
+    const rows = await live(() => db.from('profiles').select('id,full_name,avatar_url,bio,city').in('id', ids), []);
+    return Object.fromEntries(rows.map(r => [r.id, r]));
+  },
+  stories: () => live(() => db.from('artisan_stories').select('id,artisan_id,media_url,caption,created_at').gt('expires_at', new Date().toISOString()).order('created_at', { ascending: false }).limit(20), []),
+  myIds: (table, col, me) => me ? live(() => db.from(table).select(col).eq('user_id', me), []).then(r => new Set(r.map(x => x[col]))) : Promise.resolve(new Set()),
+  async toggle(table, col, id, on) { // favoris / reel_likes
+    const q = on ? db.from(table).delete().eq('user_id', App.user.id).eq(col, id) : db.from(table).insert({ [col]: id });
+    const { error } = await q; return !error;
+  },
+  following: (me, id) => me && isUuid(id) ? live(() => db.from('abonnements').select('followed_id').eq('follower_id', me).eq('followed_id', id), []).then(r => r.length > 0) : false,
+  async toggleFollow(id, on) {
+    const q = on ? db.from('abonnements').delete().eq('follower_id', App.user.id).eq('followed_id', id) : db.from('abonnements').insert({ followed_id: id });
+    return !(await q).error;
+  },
+  threads: me => live(() => db.from('messages').select('id,sender_id,receiver_id,content,created_at,read_at').or(`sender_id.eq.${me},receiver_id.eq.${me}`).order('created_at', { ascending: false }).limit(200), []),
+  thread: (me, o) => live(() => db.from('messages').select('id,sender_id,content,created_at').or(`and(sender_id.eq.${me},receiver_id.eq.${o}),and(sender_id.eq.${o},receiver_id.eq.${me})`).order('created_at').limit(100), []),
+  send: async (to, content) => !(await db.from('messages').insert({ sender_id: App.user.id, receiver_id: to, content })).error,
+  markRead: (me, o) => db.from('messages').update({ read_at: new Date().toISOString() }).eq('receiver_id', me).eq('sender_id', o).is('read_at', null),
+  unread: async me => me ? (await db.from('messages').select('id', { count: 'exact', head: true }).eq('receiver_id', me).is('read_at', null)).count || 0 : 0,
+  publish: row => db.from('annonces').insert(row)
+};
+
+/* ============ 4. COMPOSANTS (fonctions pures → HTML) ============ */
 const icon = (n, c = 'w-5 h-5') => `<i data-lucide="${n}" class="${c}"></i>`;
-const photo = (src, c = '') => `<div class="ph ${c}"><img src="${src}" alt="" loading="lazy" class="w-full h-full object-cover" onerror="this.remove()"></div>`;
-const initials = n => n.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-const avatar = (name, size = 'w-11 h-11', ring = false) =>
-  `<div class="${size} shrink-0 rounded-full grid place-items-center text-xs font-bold bg-gradient-to-br from-brand-400 to-rose-700 ${ring ? 'ring-2 ring-brand-500 ring-offset-2 ring-offset-ink-950' : ''}">${initials(name)}</div>`;
+const photo = (src, c = '') => `<div class="ph ${c}">${src ? `<img src="${esc(src)}" alt="" loading="lazy" class="w-full h-full object-cover" onerror="this.remove()">` : ''}</div>`;
+const avatar = (name, size = 'w-11 h-11', ring = false, url = '') => url
+  ? `<div class="${size} shrink-0 rounded-full overflow-hidden ${ring ? 'ring-2 ring-brand-500 ring-offset-2 ring-offset-ink-950' : ''}">${photo(url, 'w-full h-full')}</div>`
+  : `<div class="${size} shrink-0 rounded-full grid place-items-center text-xs font-bold bg-gradient-to-br from-brand-400 to-rose-700 ${ring ? 'ring-2 ring-brand-500 ring-offset-2 ring-offset-ink-950' : ''}">${esc(initials(name))}</div>`;
 const verified = () => icon('badge-check', 'w-3.5 h-3.5 text-sky-400 inline');
 const logo = (s = 'text-lg') => `<div class="flex items-center gap-1.5"><div class="logo-c w-7 h-7 rounded-full"></div><span class="${s} font-extrabold">MANAS</span></div>`;
-const chip = (label, active, action) =>
-  `<button data-action="${action}" class="tap px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${active ? 'bg-brand-500 text-white' : 'bg-ink-800 text-slate-300'}">${label}</button>`;
+const chip = (label, active, action, v) => `<button data-action="${action}" data-v="${esc(v ?? label)}" class="tap px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${active ? 'bg-brand-500 text-white' : 'bg-ink-800 text-slate-300'}">${esc(label)}</button>`;
 const topBar = (right = '') => `<header class="sticky top-0 z-20 bg-ink-950/90 backdrop-blur px-4 py-3 flex items-center justify-between">${logo()}<div class="flex items-center gap-3">${right}</div></header>`;
-const backBar = (title, right = '') => `<header class="sticky top-0 z-20 bg-ink-950/90 backdrop-blur px-4 py-3 flex items-center justify-between"><div class="flex items-center gap-3"><button data-nav="home" class="tap">${icon('arrow-left')}</button><h1 class="font-bold">${title}</h1></div>${right}</header>`;
+const backBar = (title, to = 'home', right = '') => `<header class="sticky top-0 z-20 bg-ink-950/90 backdrop-blur px-4 py-3 flex items-center justify-between"><div class="flex items-center gap-3"><button data-nav="${to}" class="tap">${icon('arrow-left')}</button><h1 class="font-bold">${esc(title)}</h1></div>${right}</header>`;
+const empty = (msg, cta = '') => `<div class="px-6 py-16 text-center text-sm text-slate-400 space-y-4"><p>${msg}</p>${cta}</div>`;
+const loginCta = (msg = 'Connecte-toi pour continuer.') => empty(msg, `<button data-action="authopen" class="btn tap rounded-xl px-6 py-2.5 font-bold text-white">Se connecter</button>`);
+const offlineBanner = () => App.offline ? `<p class="mx-4 mb-3 text-[11px] text-amber-300 bg-amber-500/10 rounded-lg px-3 py-2">Connexion au serveur impossible : données de démonstration affichées.</p>` : '';
 
-/* ============ 3. VUES ============ */
+function marketCard(a, favs) {
+  const fav = favs.has(a.id);
+  return `<article data-nav="profile" data-id="${esc(a.user_id || '')}" class="card rounded-2xl overflow-hidden tap">
+    <div class="relative">${photo(a.image_url, 'h-28')}
+      ${a.note_moyenne ? `<span class="absolute bottom-1.5 left-2 text-[11px] bg-black/60 rounded px-1.5">★ ${Number(a.note_moyenne).toFixed(1).replace('.', ',')}</span>` : ''}
+      ${a.id ? `<button data-action="fav" data-id="${a.id}" class="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-black/50 grid place-items-center ${fav ? 'text-rose-500' : 'text-white'}">${icon('heart', `w-4 h-4 ${fav ? 'fill-current' : ''}`)}</button>` : ''}</div>
+    <div class="p-2.5 text-xs"><b>${esc(a.title)}</b> ${a.verified ? verified() : ''}<p class="text-slate-400 text-[10px]">${esc(a.category)} · ${esc(a.city)}</p>
+      <p class="text-brand-400 font-semibold text-[11px] mt-1">${a.price != null ? fcfa(a.price) : ''}</p></div></article>`;
+}
+
+/* ============ 5. VUES (asynchrones : chacune charge ses données) ============ */
 const Views = {
-  home() {
-    const cats = DATA.categories.map(c => `<button data-nav="market" data-filter="${c.id}" class="tap flex flex-col items-center gap-1.5 text-[11px] text-slate-300">
-      <span class="w-14 h-14 rounded-2xl grid place-items-center ${c.color}">${icon(c.icon, 'w-7 h-7 text-white')}</span>${c.id}</button>`).join('');
-    const stories = DATA.stories.map((s, i) => `<div class="flex flex-col items-center gap-1 w-16 shrink-0 text-[10px] text-slate-400">${avatar(s, 'w-14 h-14', i > 0)}<span class="truncate w-full text-center">${s}</span></div>`).join('');
-    return `${topBar(`<button class="tap">${icon('search')}</button><button class="tap relative">${icon('bell')}</button><button data-nav="menu" class="tap">${avatar(DATA.me.name, 'w-8 h-8')}</button>`)}
-    <div class="px-4 space-y-5">
-      <section class="card rounded-2xl overflow-hidden relative flex">
-        <div class="p-4 w-3/5 z-10"><h2 class="font-extrabold leading-tight">Découvre, partage, consomme local</h2><p class="text-[11px] text-slate-400 mt-2">Tout ce dont tu as besoin au Cameroun, ou même endroit !</p></div>
-        ${photo(IMG.city, 'absolute right-0 inset-y-0 w-2/5 opacity-80')}
-      </section>
-      <label class="flex items-center gap-2 bg-ink-800 rounded-xl px-3 py-2.5 text-xs text-slate-400">${icon('search', 'w-4 h-4')}<input class="bg-transparent flex-1 outline-none" placeholder="Rechercher un service, un produit, un artisan…"></label>
-      <button class="tap flex items-center gap-2 bg-ink-800 rounded-xl px-3 py-2 text-xs font-semibold">${icon('map-pin', 'w-4 h-4 text-brand-500')}Yaoundé${icon('chevron-down', 'w-4 h-4')}</button>
+  async home(s) {
+    const [list, stories, favs] = await Promise.all([Api.annonces({ cat: s.filter, city: s.city, q: s.q, limit: 6 }), Api.stories(), Api.myIds('favoris', 'annonce_id', App.user?.id)]);
+    const items = list ?? DEMO.annonces;
+    const names = await Api.profiles([...stories.map(x => x.artisan_id), ...items.map(x => x.user_id)]);
+    const seen = new Set();
+    const storyHtml = stories.filter(x => !seen.has(x.artisan_id) && seen.add(x.artisan_id)).map(x => {
+      const p = names[x.artisan_id] || {};
+      return `<button data-action="story" data-v="${esc(x.media_url)}" data-cap="${esc(x.caption || '')}" class="tap flex flex-col items-center gap-1 w-16 shrink-0 text-[10px] text-slate-400">${avatar(p.full_name, 'w-14 h-14', true, p.avatar_url)}<span class="truncate w-full text-center">${esc(p.full_name || 'Artisan')}</span></button>`;
+    }).join('');
+    const cats = CATEGORIES.map(c => `<button data-nav="market" data-filter="${c.id}" class="tap flex flex-col items-center gap-1.5 text-[11px] text-slate-300"><span class="w-14 h-14 rounded-2xl grid place-items-center ${c.color}">${icon(c.icon, 'w-7 h-7 text-white')}</span>${c.id}</button>`).join('');
+    const feed = items.slice(0, 4).map(a => { const p = names[a.user_id] || {}; return `
+      <article data-nav="profile" data-id="${esc(a.user_id || '')}" class="card rounded-2xl p-3 space-y-2">
+        <div class="flex items-center gap-2">${avatar(p.full_name || a.title, 'w-9 h-9', false, p.avatar_url)}<div class="text-xs"><b>${esc(p.full_name || a.title)}</b><div class="text-slate-500 text-[10px]">${a.created_at ? ago(a.created_at) : ''}</div></div></div>
+        <p class="text-xs"><b>${esc(a.title)}</b>${a.description ? ' — ' + esc(a.description.slice(0, 140)) : ''}</p>
+        ${a.image_url ? photo(a.image_url, 'h-40 rounded-xl overflow-hidden') : ''}</article>`; }).join('');
+    const me = App.me;
+    const right = `<button data-action="focusq" class="tap">${icon('search')}</button><button data-nav="messages" class="tap relative">${icon('bell')}${App.unread ? '<span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-brand-500"></span>' : ''}</button>` +
+      (App.user ? `<button data-nav="menu" class="tap">${avatar(me?.full_name || App.user.email, 'w-8 h-8', false, me?.avatar_url)}</button>` : `<button data-action="authopen" class="btn tap rounded-lg px-3 py-1.5 text-xs font-bold">Connexion</button>`);
+    return `${topBar(right)}${offlineBanner()}<div class="px-4 space-y-5">
+      <section class="card rounded-2xl overflow-hidden relative flex"><div class="p-4 w-3/5 z-10"><h2 class="font-extrabold leading-tight">Découvre, partage, consomme local</h2><p class="text-[11px] text-slate-400 mt-2">Tout ce dont tu as besoin au Cameroun, au même endroit !</p></div>${photo(IMG_FALLBACK, 'absolute right-0 inset-y-0 w-2/5 opacity-80')}</section>
+      <label class="flex items-center gap-2 bg-ink-800 rounded-xl px-3 py-2.5 text-xs text-slate-400">${icon('search', 'w-4 h-4')}<input id="q" value="${esc(s.q || '')}" class="bg-transparent flex-1 outline-none text-slate-100" placeholder="Rechercher un service, un produit, un artisan…"></label>
+      <button data-action="city" class="tap flex items-center gap-2 bg-ink-800 rounded-xl px-3 py-2 text-xs font-semibold">${icon('map-pin', 'w-4 h-4 text-brand-500')}${esc(s.city)}${icon('chevron-down', 'w-4 h-4')}</button>
       <div class="grid grid-cols-4 gap-2">${cats}</div>
-      <section><div class="flex justify-between text-xs mb-2"><b>Stories / Statuts</b><span class="text-brand-500">Voir tout ›</span></div><div class="flex gap-3 overflow-x-auto hide-sb">${stories}</div></section>
-      <article class="card rounded-2xl p-3 space-y-2">
-        <div class="flex items-center gap-2">${avatar('MboaStyle', 'w-9 h-9')}<div class="text-xs"><b>MboaStyle</b> ${verified()}<div class="text-slate-500 text-[10px]">2 h</div></div></div>
-        <p class="text-xs">Nouveau look disponible ! Qualité · Style · Made in Cameroon 🇨🇲</p>
-        <div class="grid grid-cols-2 gap-2">${photo(IMG.shop, 'h-28 rounded-xl overflow-hidden')}${photo(IMG.woman, 'h-28 rounded-xl overflow-hidden')}</div>
-      </article>
-    </div>`;
+      <section><div class="flex justify-between text-xs mb-2"><b>Stories / Statuts</b><span class="text-brand-500">Voir tout ›</span></div>
+        <div class="flex gap-3 overflow-x-auto hide-sb"><button data-action="create" class="tap flex flex-col items-center gap-1 w-16 shrink-0 text-[10px] text-slate-400">${avatar(me?.full_name || '+', 'w-14 h-14', false, me?.avatar_url)}<span>Votre statut</span></button>${storyHtml}</div></section>
+      <section class="space-y-3">${feed || empty('Aucune publication pour le moment.')}</section></div>`;
   },
 
-  reels() {
-    return `<section class="relative h-[calc(100dvh-5rem)] overflow-hidden">
-      ${photo(IMG.woman, 'absolute inset-0')}
-      <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40"></div>
-      <div class="relative z-10 flex justify-between items-center px-4 pt-4 text-sm"><span></span><div class="flex gap-5"><b class="border-b-2 border-brand-500 pb-1">Pour toi</b><span class="text-slate-300">Abonnements</span></div>${icon('search')}</div>
-      <div class="absolute right-3 bottom-28 z-10 flex flex-col items-center gap-5 text-[11px]">
-        <div class="text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center text-rose-500">${icon('heart', 'w-6 h-6 fill-current')}</span>12,4 K</div>
-        <div class="text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center">${icon('message-circle')}</span>342</div>
-        <div class="text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center">${icon('share-2')}</span>1,2 K</div>
-      </div>
-      <div class="absolute bottom-6 inset-x-4 z-10 space-y-2 text-xs">
-        <span class="inline-flex items-center gap-1 bg-black/50 rounded-full px-2 py-1">${icon('map-pin', 'w-3 h-3')}Yaoundé</span>
-        <div class="flex items-center gap-2"><b>@feel_bella</b><button class="border border-white/60 rounded-full px-3 py-0.5">S’abonner</button></div>
-        <p>La beauté camerounaise n’a pas de frontière #Cameroun #Yaoundé #MadeInCameroon</p>
-        <p class="text-slate-300 flex items-center gap-1">${icon('music', 'w-3 h-3')}Son original · feel_bella</p>
-      </div>
-    </section>`;
+  async market(s) {
+    const [list, favs] = await Promise.all([Api.annonces({ cat: s.filter, city: s.city, q: s.q, limit: 30 }), Api.myIds('favoris', 'annonce_id', App.user?.id)]);
+    const items = list ?? DEMO.annonces;
+    const chips = ['Tous', ...CATEGORIES.map(c => c.id)].map(c => chip(c, s.filter === c, 'filter')).join('');
+    return `${backBar('Marché')}${offlineBanner()}<div class="px-4 space-y-4"><div class="flex gap-2 overflow-x-auto hide-sb">${chips}</div>
+      <div class="grid grid-cols-2 gap-3">${items.map(a => marketCard(a, favs)).join('') || `<div class="col-span-2">${empty('Aucune annonce dans cette catégorie.')}</div>`}</div></div>`;
   },
 
-  profile() {
-    const { me } = DATA;
-    const stats = [['posts', 'Publications'], ['followers', 'Abonnés'], ['following', 'Abonnements']]
-      .map(([k, l]) => `<div class="text-center"><b class="text-lg">${me.stats[k]}</b><div class="text-[11px] text-slate-400">${l}</div></div>`).join('');
-    const bio = me.bio.map(([i, t]) => `<p class="flex items-center gap-2 text-xs">${icon(i, 'w-3.5 h-3.5 text-brand-500')}${t}</p>`).join('');
-    return `<div class="relative h-28">${photo(IMG.city, 'absolute inset-0')}<div class="absolute inset-0 bg-gradient-to-b from-black/50 to-ink-950"></div>
-      <button data-nav="home" class="tap absolute top-3 left-4">${icon('arrow-left')}</button></div>
-    <div class="px-4 -mt-10 relative space-y-3">
-      <div class="w-20 h-20 rounded-full ring-4 ring-ink-950 overflow-hidden">${photo(IMG.man, 'w-full h-full')}</div>
-      <h1 class="text-xl font-extrabold">${me.name} ${verified()}</h1><p class="text-xs text-slate-400 -mt-2">${me.handle}</p>
-      <div class="grid grid-cols-2 gap-3"><button class="btn tap rounded-xl py-2 text-sm font-bold">S’abonner</button><button class="tap rounded-xl py-2 text-sm bg-ink-800 border border-white/10">Message</button></div>
-      <div class="grid grid-cols-3 py-2">${stats}</div><div class="space-y-1.5">${bio}</div>
-      <div class="flex justify-around border-b border-white/10 text-xs pt-2"><b class="border-b-2 border-brand-500 pb-2 text-brand-500">Publications</b><span class="text-slate-400">Reels</span><span class="text-slate-400">À propos</span></div>
-      <div class="grid grid-cols-3 gap-1">${[IMG.man, IMG.city, IMG.woman].map(s => photo(s, 'h-28')).join('')}</div>
-    </div>`;
+  async favs() {
+    if (!App.user) return backBar('Mes favoris', 'menu') + loginCta('Connecte-toi pour voir tes favoris.');
+    const favs = await Api.myIds('favoris', 'annonce_id', App.user.id);
+    const items = favs.size ? await Api.annonces({ ids: [...favs], limit: 50 }) ?? [] : [];
+    return `${backBar('Mes favoris', 'menu')}<div class="px-4"><div class="grid grid-cols-2 gap-3">${items.map(a => marketCard(a, favs)).join('') || `<div class="col-span-2">${empty('Aucun favori. Touche le cœur d’une annonce pour l’ajouter.')}</div>`}</div></div>`;
   },
 
-  market(state) {
-    const f = state.filter;
-    const chips = ['Tous', ...DATA.categories.map(c => c.id)].map(c => chip(c, f === c, `filter:${c}`)).join('');
-    const items = DATA.market.filter(m => f === 'Tous' || m.cat === f).map(m => `
-      <article class="card rounded-2xl overflow-hidden">
-        <div class="relative">${photo(m.img, 'h-28')}<span class="absolute bottom-1.5 left-2 text-[11px] bg-black/60 rounded px-1.5">★ ${m.rating}</span></div>
-        <div class="p-2.5 text-xs"><b>${m.name}</b><p class="text-slate-400 text-[10px]">${m.meta}</p><p class="text-emerald-400 text-[10px] mt-1">● Ouvert</p></div>
-      </article>`).join('');
-    return `${backBar('Marché', icon('search'))}
-    <div class="px-4 space-y-4"><div class="flex gap-2 overflow-x-auto hide-sb">${chips}</div>
-    <div class="grid grid-cols-2 gap-3">${items || '<p class="col-span-2 text-center text-sm text-slate-500 py-10">Aucun résultat dans cette catégorie.</p>'}</div></div>`;
+  async reels() {
+    const [list, likedSet] = await Promise.all([Api.annonces({ video: true, limit: 10 }), Api.myIds('reel_likes', 'annonce_id', App.user?.id)]);
+    const reels = list ?? [];
+    if (!reels.length) return topBar() + empty('Aucun reel pour le moment. Sois le premier à en publier !');
+    const ids = reels.map(r => r.id);
+    const [likes, comments, names] = await Promise.all([
+      live(() => db.from('reel_likes').select('annonce_id').in('annonce_id', ids), []), live(() => db.from('reel_comments').select('reel_id').in('reel_id', ids).eq('status', 'approved'), []),
+      Api.profiles(reels.map(r => r.user_id))]);
+    const tally = (rows, k) => rows.reduce((m, r) => (m[r[k]] = (m[r[k]] || 0) + 1, m), {});
+    const nl = tally(likes, 'annonce_id'), nc = tally(comments, 'reel_id');
+    const slides = reels.map(r => { const p = names[r.user_id] || {}, liked = likedSet.has(r.id); return `
+      <section class="snap-start h-full relative overflow-hidden">
+        <video src="${esc(r.video_url)}" poster="${esc(r.image_url || '')}" loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover"></video>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40 pointer-events-none"></div>
+        <div class="absolute right-3 bottom-28 z-10 flex flex-col items-center gap-5 text-[11px]">
+          <button data-action="like" data-id="${r.id}" class="tap text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center ${liked ? 'text-rose-500' : ''}">${icon('heart', `w-6 h-6 ${liked ? 'fill-current' : ''}`)}</span>${nl[r.id] || 0}</button>
+          <div class="text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center">${icon('message-circle')}</span>${nc[r.id] || 0}</div>
+          <button data-action="share" data-id="${r.id}" data-v="${esc(r.title)}" class="tap text-center"><span class="w-11 h-11 rounded-full bg-black/40 grid place-items-center">${icon('share-2')}</span>Partager</button></div>
+        <div class="absolute bottom-6 inset-x-4 right-20 z-10 space-y-2 text-xs">
+          <span class="inline-flex items-center gap-1 bg-black/50 rounded-full px-2 py-1">${icon('map-pin', 'w-3 h-3')}${esc(r.city || 'Cameroun')}</span>
+          <button data-nav="profile" data-id="${esc(r.user_id || '')}" class="flex items-center gap-2 font-bold">@${esc((p.full_name || r.title).replace(/\s+/g, '_').toLowerCase())}</button>
+          <p>${esc(r.title)}${r.description ? ' — ' + esc(r.description.slice(0, 100)) : ''}</p></div></section>`; }).join('');
+    return `<div class="absolute top-0 inset-x-0 z-20 flex justify-center gap-5 pt-4 text-sm pointer-events-none"><b class="border-b-2 border-brand-500 pb-1">Pour toi</b><span class="text-slate-300">Abonnements</span></div>
+      <div id="reel-scroll" class="h-[calc(100dvh-5rem)] overflow-y-scroll snap-y snap-mandatory hide-sb">${slides}</div>`;
   },
 
-  messages(state) {
-    const f = state.msgFilter;
-    const list = DATA.chats.filter(c => f === 'Toutes' || c.group === f || (f === 'Non lues' && c.unread)).map(c => `
-      <div class="flex items-center gap-3 py-3">${avatar(c.name, 'w-12 h-12')}
-        <div class="flex-1 min-w-0 text-sm"><b>${c.name}</b> ${c.verified ? verified() : ''}<p class="text-xs text-slate-400 truncate">${c.last}</p></div>
-        <div class="text-[10px] text-slate-500 text-right space-y-1"><div>${c.time}</div>${c.unread ? `<span class="inline-grid place-items-center w-5 h-5 rounded-full bg-brand-500 text-white font-bold">${c.unread}</span>` : ''}</div>
-      </div>`).join('');
-    const chips = ['Toutes', 'Non lues', 'Groupes'].map(c => chip(c, f === c, `msg:${c}`)).join('');
-    return `<header class="px-4 py-3 flex justify-between items-center"><h1 class="text-xl font-extrabold">Messages</h1>${icon('search')}</header>
-    <div class="px-4"><div class="flex gap-2 mb-2">${chips}</div><div class="divide-y divide-white/5">${list}</div></div>`;
-  },
-
-  menu() {
-    const rows = DATA.menu.map(([i, l]) => `<button class="tap w-full flex items-center gap-3 py-3.5 text-sm border-b border-white/5">${icon(i, 'w-5 h-5 text-slate-300')}<span class="flex-1 text-left">${l}</span>${icon('chevron-right', 'w-4 h-4 text-slate-500')}</button>`).join('');
-    return `${backBar('Mon espace')}<div class="px-4">
-      <button data-nav="profile" class="tap w-full flex items-center gap-3 py-3 border-b border-white/5">${avatar(DATA.me.name, 'w-11 h-11')}<div class="flex-1 text-left text-sm"><b>${DATA.me.name}</b> ${verified()}<p class="text-xs text-slate-400">${DATA.me.handle}</p></div>${icon('chevron-right', 'w-4 h-4 text-slate-500')}</button>
-      ${rows}<button class="tap flex items-center gap-3 py-4 text-sm text-rose-500">${icon('log-out')}Se déconnecter</button></div>`;
-  }
-};
-
-/* ============ 4. FEUILLE « PUBLIER » ============ */
-const Sheet = {
-  el: () => document.getElementById('sheet'),
-  open() {
-    const types = [['image', 'Photo'], ['video', 'Vidéo'], ['clapperboard', 'Reel'], ['circle-dashed', 'Statut']]
-      .map(([i, l]) => `<button class="tap flex flex-col items-center gap-1.5 text-xs"><span class="w-14 h-14 rounded-full bg-ink-700 grid place-items-center">${icon(i, 'w-6 h-6')}</span>${l}</button>`).join('');
-    this.el().innerHTML = `<div class="w-full max-w-md bg-ink-900 rounded-t-3xl p-5 space-y-4">
-      <div class="flex items-center gap-3"><button data-action="close">${icon('x')}</button><b>Créer une publication</b></div>
-      <div class="grid grid-cols-4">${types}</div>
-      <textarea placeholder="Quoi de neuf ?" class="w-full h-24 bg-ink-800 rounded-xl p-3 text-sm outline-none resize-none"></textarea>
-      <p class="flex items-center gap-2 text-xs text-slate-400">${icon('map-pin', 'w-4 h-4 text-brand-500')}Ajouter une localisation</p>
-      <button data-action="close" class="btn tap w-full rounded-xl py-3 font-bold">Publier</button>
-      <p class="text-center text-[11px] text-slate-500">Partage ton quotidien, ton business, tes idées, tes talents…</p></div>`;
-    this.el().classList.replace('hidden', 'flex'); lucide.createIcons();
-  },
-  close() { this.el().classList.replace('flex', 'hidden'); }
-};
-
-/* ============ 5. ROUTEUR & ÉTAT ============ */
-const App = {
-  state: { view: 'home', filter: 'Tous', msgFilter: 'Toutes' },
-  navView: v => ({ market: 'home', menu: 'profile' }[v] || v),
-  render() {
-    const { view } = this.state;
-    document.getElementById('app').innerHTML = Views[view](this.state);
-    this.renderNav(); lucide.createIcons(); window.scrollTo(0, 0);
-  },
-  renderNav() {
-    const active = this.navView(this.state.view);
-    document.getElementById('nav').innerHTML = DATA.tabs.map(t => t.fab
-      ? `<div class="flex justify-center"><button data-action="create" class="fab tap -mt-6 w-14 h-14 rounded-full grid place-items-center">${icon('plus', 'w-7 h-7 text-white')}</button></div>`
-      : `<button data-nav="${t.id}" class="tap relative flex flex-col items-center gap-0.5 text-[10px] ${active === t.id ? 'text-brand-500 font-bold' : 'text-slate-500'}">
-          ${icon(t.icon)}${t.label}${t.badge ? `<span class="absolute -top-1 right-4 min-w-4 h-4 px-1 rounded-full bg-brand-500 text-white text-[9px] grid place-items-center">${t.badge}</span>` : ''}</button>`).join('');
-  },
-  go(view, filter) { this.state.view = view; if (filter) this.state.filter = filter; this.render(); },
-  handle(action) {
-    const [type, value] = action.split(':');
-    if (type === 'create') Sheet.open();
-    if (type === 'close') Sheet.close();
-    if (type === 'filter') { this.state.filter = value; this.render(); }
-    if (type === 'msg') { this.state.msgFilter = value; this.render(); }
-  },
-  init() {
-    document.addEventListener('click', e => {
-      const nav = e.target.closest('[data-nav]'), act = e.target.closest('[data-action]');
-      if (act) return this.handle(act.dataset.action);
-      if (nav) this.go(nav.dataset.nav, nav.dataset.filter);
-    });
-    this.render();
-  }
-};
-App.init();
-</script>
-</body>
-</html>
+  async profile(s) {
+    const id = s.pid || App.user?.id;
+    if (!id) return topB

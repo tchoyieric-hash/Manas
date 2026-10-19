@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANAS — Plateforme Mondiale d'Artisans & BTP</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Three.js pour le scan 3D LiDAR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .glass-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .gradient-text { background: linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+    <!-- NAVBAR SUPÉRIEURE -->
+    <header class="sticky top-0 z-50 glass border-b border-slate-800/80 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-purple-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                <i data-lucide="layers" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+                <span class="text-xl font-extrabold tracking-tight gradient-text">MANAS</span>
+                <span class="hidden sm:inline-block ml-2 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">Global OS</span>
+            </div>
+        </div>
+
+        <!-- Navigation centrale -->
+        <nav class="hidden md:flex items-center space-x-1 glass-card px-3 py-1.5 rounded-full border border-slate-800">
+            <button onclick="switchTab('explore')" id="nav-explore" class="px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-brand-500 text-white shadow-md">Explorer</button>
+            <button onclick="switchTab('reels')" id="nav-reels" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all text-slate-400 hover:text-white">Réels 🎬</button>
+            <button onclick="switchTab('lidar')" id="nav-lidar" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all text-slate-400 hover:text-white">Scan 3D 📐</button>
+            <button onclick="switchTab('escrow')" id="nav-escrow" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all text-slate-400 hover:text-white">Séquestre AI 🛡️</button>
+            <button onclick="switchTab('chat')" id="nav-chat" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all text-slate-400 hover:text-white">Messagerie 💬</button>
+            <button onclick="switchTab('copilot')" id="nav-copilot" class="px-4 py-1.5 rounded-full text-sm font-medium transition-all text-slate-400 hover:text-white">Copilote 🧠</button>
+        </nav>
+
+        <!-- Actions Droite & Devises -->
+        <div class="flex items-center space-x-3">
+            <select id="currency-select" onchange="changeCurrency(this.value)" class="bg-slate-900 border border-slate-700 text-xs rounded-lg px-2.5 py-1.5 text-slate-300 font-medium focus:outline-none focus:border-brand-500">
+                <option value="XAF">FCFA (XAF)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="USD">USD ($)</option>
+            </select>
+            
+            <button onclick="openAuthModal()" class="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-600 px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-brand-500/25 transition-all">
+                <i data-lucide="user" class="w-4 h-4"></i>
+                <span id="auth-btn-text">Connexion</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTENEUR PRINCIPAL -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-20 md:mb-6">
+
+        <!-- ONGLET 1 : EXPLORER & ARTISANS -->
+        <section id="tab-explore" class="space-y-6">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-800 p-8 sm:p-12 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-2xl">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold mb-4">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        <span>Normes Silicon Valley & Standards Internationaux</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4">
+                        Connectez-vous aux <span class="gradient-text">meilleurs talents</span> mondiaux.
+                    </h1>
+                    <p class="text-slate-400 text-sm sm:text-base mb-6">
+                        Plateforme globale certifiée avec géolocalisation, contrats intelligents en séquestre et vérification spatiale par IA.
+                    </p>
+                    
+                    <!-- Barre de recherche -->
+                    <div class="flex flex-col sm:flex-row gap-3 bg-slate-950/80 p-2 rounded-2xl border border-slate-800 backdrop-blur">
+                        <div class="flex-1 flex items-center px-3 space-x-2">
+                            <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
+                            <input type="text" id="search-input" oninput="filterArtisans()" placeholder="Rechercher un artisan (ex: Menuisier, Maçon, Architecte...)" class="w-full bg-transparent border-none text-sm text-slate-100 placeholder-slate-500 focus:outline-none">
+                        </div>
+                        <button onclick="filterArtisans()" class="bg-brand-500 hover:bg-brand-600 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all shadow-lg shadow-brand-500/20">
+                            Rechercher
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtres par catégorie -->
+            <div class="flex items-center space-x-3 overflow-x-auto hide-scrollbar pb-2">
+                <button onclick="filterCategory('all')" id="cat-all" class="category-btn px-4 py-2 rounded-xl text-sm font-semibold bg-brand-500 text-white transition-all whitespace-nowrap">Tous</button>
+                <button onclick="filterCategory('menuiserie')" id="cat-menuiserie" class="category-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 transition-all whitespace-nowrap">🪑 Menuiserie d'art</button>
+                <button onclick="filterCategory('maconnerie')" id="cat-maconnerie" class="category-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 transition-all whitespace-nowrap">🏗️ Maçonnerie & BTP</button>
+                <button onclick="filterCategory('electricite')" id="cat-electricite" class="category-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 transition-all whitespace-nowrap">⚡ Électricité & IoT</button>
+                <button onclick="filterCategory('plomberie')" id="cat-plomberie" class="category-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 transition-all whitespace-nowrap">🔧 Plomberie avancée</button>
+            </div>
+
+            <!-- Grille des Artisans -->
+            <div id="artisans-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Injecté dynamiquement par JS -->
+            </div>
+        </section>
+
+        <!-- ONGLET 2 : REELS VIDÉO (TikTok Style) -->
+        <section id="tab-reels" class="hidden max-w-md mx-auto space-y-4">
+            <div class="text-center mb-2">
+                <h2 class="text-xl font-bold">Réels & Chantiers en direct</h2>
+                <p class="text-xs text-slate-400">Découvrez le savoir-faire des artisans en vidéo immersive</p>
+            </div>
+            <div id="reels-container" class="relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 h-[600px] flex flex-col justify-end shadow-2xl">
+                <!-- Vidéo / Post simulé -->
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-10"></div>
+                <img id="reel-img" src="https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover" alt="Réel chantier">
+                
+                <!-- Actions sur le côté -->
+                <div class="absolute right-4 bottom-24 z-20 flex flex-col items-center space-y-4">
+                    <button onclick="likeReel()" class="w-12 h-12 rounded-full bg-slate-900/80 backdrop-blur border border-slate-700 flex flex-col items-center justify-center text-rose-500 hover:scale-110 transition-all">
+                        <i data-lucide="heart" class="w-6 h-6 fill-current"></i>
+                        <span id="reel-likes" class="text-[10px] font-bold text-white">2.4K</span>
+                    </button>
+                    <button onclick="alert('Lien du projet copié dans le presse-papier !')" class="w-12 h-12 rounded-full bg-slate-900/80 backdrop-blur border border-slate-700 flex items-center justify-center text-white hover:scale-110 transition-all">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Infos artisan -->
+                <div class="relative z-20 p-6 space-y-2">
+                    <div class="flex items-center space-x-3">
+                        <img id="reel-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" class="w-10 h-10 rounded-full border-2 border-brand-500 object-cover" alt="Avatar">
+                        <div>
+                            <h4 id="reel-name" class="font-bold text-sm">Atelier Nlong</h4>
+                            <span class="text-xs text-brand-400 font-medium">Menuisier d'Art • ⭐ 4.9 (32)</span>
+                        </div>
+                    </div>
+                    <p id="reel-desc" class="text-xs text-slate-300">Fabrication sur mesure d'une cuisine moderne en bois massif avec îlot central à Yaoundé.</p>
+                    <button onclick="switchTab('explore')" class="w-full mt-2 bg-brand-500 hover:bg-brand-600 py-2.5 rounded-xl text-xs font-semibold text-white shadow-lg shadow-brand-500/30 transition-all">
+                        Commander cet artisan
+                    </button>
+                </div>
+
+                <!-- Boutons de navigation réels -->
+                <div class="absolute top-4 left-0 right-0 z-20 flex justify-between px-6">
+                    <button onclick="prevReel()" class="bg-slate-900/60 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold">◀ Précédent</button>
+                    <span id="reel-counter" class="text-xs font-bold bg-slate-900/60 backdrop-blur px-3 py-1 rounded-full">1 / 3</span>
+                    <button onclick="nextReel()" class="bg-slate-900/60 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold">Suivant ▶</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ONGLET 3 : SCAN 3D LIDAR -->
+        <section id="tab-lidar" class="hidden space-y-6">
+            <div class="glass-card p-6 rounded-3xl border border-slate-800">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold mb-2">
+                            <i data-lucide="scan" class="w-3.5 h-3.5"></i>
+                            <span>Technologie MANAS Spatial Verification™</span>
+                        </div>
+                        <h2 class="text-2xl font-bold">Jumeau Numérique 3D & LiDAR</h2>
+                        <p class="text-xs text-slate-400">Inspectez le chantier au millimètre près à distance avant de valider le paiement.</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="resetCamera3D()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold transition-all">Centrer la vue</button>
+                        <button onclick="alert('Mesure LiDAR active : Précision ± 0.5 mm')" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-cyan-500/20">Activer Règle 📏</button>
+                    </div>
+                </div>
+
+                <!-- Conteneur Three.js -->
+                <div id="canvas-3d-container" class="relative w-full h-[450px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-inner flex items-center justify-center">
+                    <!-- Rendu Three.js injecté ici -->
+                    <div id="loading-3d" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 z-10">
+                        <div class="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                        <span class="text-xs text-slate-400">Chargement du modèle LiDAR...</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                    <div class="glass-card p-4 rounded-2xl">
+                        <span class="text-xs text-slate-400">Surface totale scannée</span>
+                        <h3 class="text-lg font-bold text-cyan-400 mt-1">84.5 m²</h3>
+                    </div>
+                    <div class="glass-card p-4 rounded-2xl">
+                        <span class="text-xs text-slate-400">Conformité Cahier des charges</span>
+                        <h3 class="text-lg font-bold text-emerald-400 mt-1">98.2% (Validé IA)</h3>
+                    </div>
+                    <div class="glass-card p-4 rounded-2xl">
+                        <span class="text-xs text-slate-400">Dernière mise à jour LiDAR</span>
+                        <h3 class="text-lg font-bold text-white mt-1">Il y a 2 heures</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ONGLET 4 : SÉQUESTRE IA & SMART CONTRACTS -->
+        <section id="tab-escrow" class="hidden space-y-6">
+            <div class="glass-card p-6 rounded-3xl border border-slate-800 max-w-3xl mx-auto space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-2">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                            <span>Paiement Sécurisé Escrow Multi-devises</span>
+                        </div>
+                        <h2 class="text-2xl font-bold">Contrat Intelligent de Chantier</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400">Montant total du projet</span>
+                        <h3 id="escrow-total" class="text-xl font-extrabold text-brand-400">1 500 000 FCFA</h3>
+                    </div>
+                </div>
+
+                <!-- Jalons du contrat -->
+                <div class="space-y-4">
+                    <div class="p-4 rounded-2xl bg-slate-900 border border-emerald-500/40 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</div>
+                            <div>
+                                <h4 class="font-bold text-sm">Jalon 1 : Fondation & Gros œuvre</h4>
+                                <span class="text-xs text-slate-400">Vérifié par IA & Scan LiDAR</span>
+                            </div>
+                        </div>
+                        <span class="text-sm font-bold text-emerald-400 escrow-val" data-base="500000">500 000 FCFA (Libéré)</span>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-slate-900 border border-brand-500/40 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">2</div>
+                            <div>
+                                <h4 class="font-bold text-sm">Jalon 2 : Ossature & Finitions bois</h4>
+                                <span class="text-xs text-slate-400">En cours d'inspection visuelle IA</span>
+                            </div>
+                        </div>
+                        <span class="text-sm font-bold text-brand-400 escrow-val" data-base="600000">600 000 FCFA (Séquestre)</span>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between opacity-70">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs">3</div>
+                            <div>
+                                <h4 class="font-bold text-sm">Jalon 3 : Peinture & Livraison finale</h4>
+                                <span class="text-xs text-slate-400">En attente du Jalon 2</span>
+                            </div>
+                        </div>
+                        <span class="text-sm font-bold text-slate-400 escrow-val" data-base="400000">400 000 FCFA (Bloqué)</span>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="cpu" class="w-6 h-6 text-brand-400 animate-pulse"></i>
+                        <p class="text-xs text-slate-300">L'IA MA

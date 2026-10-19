@@ -74,13 +74,13 @@
 
         <!-- Actions Droite & Devises -->
         <div class="flex items-center space-x-2">
-            <select id="currency-select" onchange="changeCurrency(this.value)" class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-2.5 py-2 text-slate-200 font-semibold focus:outline-none">
+            <select id="currency-select" class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-2 py-1.5 text-slate-200 font-semibold focus:outline-none">
                 <option value="XAF">FCFA</option>
                 <option value="EUR">EUR (€)</option>
                 <option value="USD">USD ($)</option>
             </select>
             
-            <button onclick="openAuthModal()" class="active-tap bg-gradient-to-r from-brand-600 to-brand-500 px-3.5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-brand-500/20 flex items-center space-x-1.5">
+            <button onclick="openAuthModal()" id="auth-btn" class="active-tap bg-gradient-to-r from-brand-600 to-brand-500 px-3.5 py-2 rounded-xl text-xs font-bold text-white shadow-lg shadow-brand-500/20 flex items-center space-x-1.5">
                 <i data-lucide="user" class="w-4 h-4"></i>
                 <span id="auth-btn-text">Connexion</span>
             </button>
@@ -112,20 +112,20 @@
             </div>
 
             <div class="flex items-center space-x-2 overflow-x-auto hide-scrollbar py-1">
-                <button onclick="filterCategory('all')" id="cat-all" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-500 text-white whitespace-nowrap shadow-md">Tous</button>
-                <button onclick="filterCategory('menuiserie')" id="cat-menuiserie" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">🪑 Menuiserie</button>
-                <button onclick="filterCategory('maconnerie')" id="cat-maconnerie" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">🏗️ Maçonnerie</button>
-                <button onclick="filterCategory('electricite')" id="cat-electricite" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">⚡ Électricité</button>
+                <button onclick="filterCategory('all')" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-500 text-white whitespace-nowrap shadow-md">Tous</button>
+                <button onclick="filterCategory('menuiserie')" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">🪑 Menuiserie</button>
+                <button onclick="filterCategory('maconnerie')" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">🏗️ Maçonnerie</button>
+                <button onclick="filterCategory('electricite')" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">⚡ Électricité</button>
             </div>
 
             <div id="artisans-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Injecté par JS / Supabase -->
+                <!-- Généré dynamiquement -->
             </div>
         </section>
 
         <!-- ONGLET 2 : REELS VIDÉO TIKTOK STYLE -->
         <section id="tab-reels" class="hidden max-w-sm mx-auto space-y-3">
-            <div id="reels-container" class="relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 h-[72dvh] flex flex-col justify-end shadow-2xl">
+            <div id="reels-container" class="relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 h-[70dvh] flex flex-col justify-end shadow-2xl">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-10"></div>
                 <img id="reel-img" src="https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover">
                 
@@ -134,7 +134,7 @@
                         <i data-lucide="heart" class="w-5 h-5 fill-current"></i>
                         <span id="reel-likes" class="text-[9px] font-bold text-white">2.4K</span>
                     </button>
-                    <button onclick="alert('Lien copié !')" class="active-tap w-11 h-11 rounded-full bg-slate-900/80 border border-slate-700 flex items-center justify-center text-white">
+                    <button onclick="alert('Lien de la vidéo copié !')" class="active-tap w-11 h-11 rounded-full bg-slate-900/80 border border-slate-700 flex items-center justify-center text-white">
                         <i data-lucide="share-2" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -154,9 +154,9 @@
                 </div>
 
                 <div class="absolute top-3 left-0 right-0 z-20 flex justify-between px-4">
-                    <button onclick="prevReel()" class="bg-slate-900/70 px-3 py-1 rounded-full text-[10px] font-semibold">◀ Précédent</button>
-                    <span id="reel-counter" class="text-[10px] font-bold bg-slate-900/70 px-3 py-1 rounded-full">1 / 3</span>
-                    <button onclick="nextReel()" class="bg-slate-900/70 px-3 py-1 rounded-full text-[10px] font-semibold">Suivant ▶</button>
+                    <button onclick="prevReel()" class="bg-slate-900/80 px-3 py-1 rounded-full text-[10px] font-semibold border border-slate-700">◀ Précédent</button>
+                    <span id="reel-counter" class="text-[10px] font-bold bg-slate-900/80 px-3 py-1 rounded-full border border-slate-700">1 / 2</span>
+                    <button onclick="nextReel()" class="bg-slate-900/80 px-3 py-1 rounded-full text-[10px] font-semibold border border-slate-700">Suivant ▶</button>
                 </div>
             </div>
         </section>
@@ -170,8 +170,8 @@
                 </div>
                 <div id="canvas-3d-container" class="relative w-full h-[320px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
                     <div id="loading-3d" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 z-10">
-                        <div class="w-6 h-6 border-3 border-cyan-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-                        <span class="text-xs text-slate-400">Chargement modèle 3D...</span>
+                        <div class="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                        <span class="text-xs text-slate-400">Génération structure 3D...</span>
                     </div>
                 </div>
             </div>
@@ -186,11 +186,17 @@
                 </div>
                 <div class="space-y-2 text-xs">
                     <div class="p-3 rounded-xl bg-slate-900 border border-emerald-500/40 flex justify-between items-center">
-                        <span>Jalon 1 : Fondations</span>
+                        <div>
+                            <p class="font-bold">Jalon 1 : Fondations</p>
+                            <span class="text-[10px] text-slate-400">Validé par l'inspecteur</span>
+                        </div>
                         <span class="text-emerald-400 font-bold">✓ Libéré</span>
                     </div>
                     <div class="p-3 rounded-xl bg-slate-900 border border-brand-500/40 flex justify-between items-center">
-                        <span>Jalon 2 : Finitions bois</span>
+                        <div>
+                            <p class="font-bold">Jalon 2 : Finitions bois</p>
+                            <span class="text-[10px] text-slate-400">En cours de vérification LiDAR</span>
+                        </div>
                         <span class="text-brand-400 font-bold">🔒 En séquestre</span>
                     </div>
                 </div>
@@ -201,17 +207,21 @@
         <section id="tab-chat" class="hidden space-y-3">
             <div class="glass-card rounded-2xl p-3 border border-slate-800 h-[65dvh] flex flex-col justify-between">
                 <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-                    <h4 class="font-bold text-xs">Atelier Nlong</h4>
-                    <span class="text-[10px] text-emerald-400">● En ligne</span>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <h4 class="font-bold text-xs">Atelier Nlong</h4>
+                    </div>
+                    <span class="text-[10px] text-slate-400">Bastos, Yaoundé</span>
                 </div>
-                <div id="chat-messages" class="flex-1 my-2 overflow-y-auto space-y-2 text-xs">
-                    <div class="bg-slate-900 p-2.5 rounded-xl max-w-[85%]">
-                        <p>Bonjour ! Les mesures du plan sont validées.</p>
+                <div id="chat-messages" class="flex-1 my-2 overflow-y-auto space-y-2 text-xs pr-1">
+                    <div class="bg-slate-900 p-2.5 rounded-xl max-w-[85%] border border-slate-800">
+                        <p>Bonjour ! Les mesures du plan 3D pour votre cuisine ont été validées.</p>
+                        <span class="text-[9px] text-slate-500 mt-1 block">08:30</span>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <input type="text" id="chat-input" placeholder="Message..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                    <button onclick="sendMessage()" class="bg-brand-500 p-2 rounded-xl text-white">
+                <div class="flex items-center space-x-2 pt-2 border-t border-slate-800">
+                    <input type="text" id="chat-input" placeholder="Écrire un message..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+                    <button onclick="sendMessage()" class="bg-brand-500 p-2 rounded-xl text-white active-tap">
                         <i data-lucide="send" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -221,15 +231,22 @@
         <!-- ONGLET 6 : COPILOTE IA -->
         <section id="tab-copilot" class="hidden space-y-4">
             <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
-                <h2 class="text-base font-bold">Architectural Copilot™</h2>
-                <textarea id="copilot-prompt" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white" placeholder="Rénovation cuisine à Yaoundé..."></textarea>
-                <button onclick="generateCopilotProject()" class="w-full bg-purple-600 py-3 rounded-xl text-xs font-bold text-white">Générer Devis IA 🚀</button>
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="bot" class="w-5 h-5 text-purple-400"></i>
+                    <h2 class="text-base font-bold">Architectural Copilot™</h2>
+                </div>
+                <textarea id="copilot-prompt" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none" placeholder="Ex: Rénovation cuisine américaine à Yaoundé avec îlot central..."></textarea>
+                <button onclick="generateCopilotProject()" class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl text-xs font-bold text-white shadow-lg active-tap">Générer Estimation IA 🚀</button>
+                <div id="copilot-result" class="hidden p-3 rounded-xl bg-slate-900 border border-purple-500/30 text-xs space-y-2">
+                    <p class="font-bold text-purple-300">Résultat Copilote IA :</p>
+                    <p class="text-slate-300" id="copilot-text"></p>
+                </div>
             </div>
         </section>
 
     </main>
 
-    <!-- NAVBAR MOBILE BOTTOM FIXÉE EN BAS -->
+    <!-- NAVBAR MOBILE BOTTOM -->
     <div class="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-slate-800 px-2 py-1.5 z-50 flex justify-around items-center">
         <button onclick="switchTab('explore')" id="mob-explore" class="active-tap flex flex-col items-center text-brand-500 p-1.5">
             <i data-lucide="compass" class="w-5 h-5"></i>
@@ -253,44 +270,32 @@
         </button>
     </div>
 
-    <!-- MODAL AUTH -->
+    <!-- MODAL AUTH SUPABASE -->
     <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
         <div class="glass-card p-6 rounded-2xl border border-slate-800 max-w-xs w-full space-y-4 relative">
             <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
             <h3 class="text-lg font-bold text-center gradient-text">MANAS Auth</h3>
-            <input type="email" id="auth-email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs">
-            <input type="password" id="auth-password" placeholder="Mot de passe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs">
-            <button onclick="handleAuthSubmit()" class="w-full bg-brand-500 py-2.5 rounded-xl text-xs font-bold text-white">Connexion</button>
+            <input type="email" id="auth-email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+            <input type="password" id="auth-password" placeholder="Mot de passe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+            <button onclick="handleLoginSubmit()" class="w-full bg-brand-500 py-2.5 rounded-xl text-xs font-bold text-white shadow-lg active-tap">Se connecter</button>
         </div>
     </div>
 
-    <!-- SCRIPT LOGIQUE & SUPABASE -->
+    <!-- SCRIPT LOGIQUE ET CLIENT -->
     <script>
         lucide.createIcons();
 
-        // Identifiants Supabase configurés pour MANAS
+        // Initialisation Supabase sécurisée
         const SUPABASE_URL = 'https://qdzgywqocpyijxyjjief.supabase.co';
         const SUPABASE_ANON_KEY = 'Sb_publishable_dWYtPG6poRu2URshRlsb4Q_1Nlay06f';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabaseClient = null;
+        try {
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.log("Mode catalogue local actif");
+        }
 
-        const artisans = [
-            { id: 1, name: "Atelier Nlong", category: "menuiserie", badge: "Artisan d'Or", rating: 4.9, location: "Bastos, Yaoundé", priceXAF: "15 000 FCFA", image: "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&q=80&w=800", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" },
-            { id: 2, name: "BatiPro BTP", category: "maconnerie", badge: "Certifié ISO", rating: 4.7, location: "Odza, Yaoundé", priceXAF: "50 000 FCFA", image: "https://images.unsplash.com/photo-1541888946425-d0fbb18f5f3e?auto=format&fit=crop&q=80&w=800", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200" }
-        ];
-
-        function renderArtisans(list = artisans) {
-            const grid = document.getElementById('artisans-grid');
-            grid.innerHTML = '';
-            list.forEach(a => {
-                grid.innerHTML += `
-                    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800">
-                        <div class="h-36 relative">
-                            <img src="${a.image}" class="w-full h-full object-cover">
-                            <span class="absolute top-2 left-2 bg-slate-950/80 text-[9px] font-bold text-brand-400 px-2 py-0.5 rounded-full">${a.badge}</span>
-                        </div>
-                        <div class="p-3 space-y-2">
-                            <div class="flex items-center space-x-2">
-                                <img src="${a.avatar}" class="w-8 h-8 rounded-full border border-brand-500 object-cover">
-                                <div>
-                                    <h3 class="font-bold text-xs">${a.name}</h3>
-                                    <span c
+        const defaultArtisans = [
+            { id: 1, name: "Atelier Nlong", category: "menuiserie", badge: "Artisan d'Or", rating: 4.9, location: "Bastos, Yaoundé", priceXAF: "15 000 FCFA", image: "https://images.unsplash.com/photo-1590381

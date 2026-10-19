@@ -271,3 +271,16 @@
                     <div class="flex items-center space-x-3">
                         <i data-lucide="cpu" class="w-6 h-6 text-brand-400 animate-pulse"></i>
                         <p class="text-xs text-slate-300">L'IA MA
+<!-- SDK Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    // Identifiants réels du projet MANAS
+    const SUPABASE_URL = 'https://qdzgywqocpyijxyjjief.supabase.co';
+    const SUPABASE_ANON_KEY = 'Sb_publishable_dWYtPG6poRu2URshRlsb4Q_1Nlay06f';
+
+    // Initialisation du client Supabase
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    console.log("Connecteur Supabase MANAS initialisé avec succès !");
+</script>

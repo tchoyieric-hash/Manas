@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MANAS — Global OS Artisans & BTP</title>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,69 +13,284 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: { 500: '#f97316', 600: '#ea580c' }
+                        brand: {
+                            50: '#fff7ed',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                        }
                     }
                 }
             }
         }
     </script>
+
+    <!-- Google Fonts & Lucide Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Three.js pour le scan 3D LiDAR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- SDK Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .gradient-text { background: linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .active-tap:active { transform: scale(0.96); transition: transform 0.1s ease; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-[100dvh] flex flex-col justify-between pb-20">
+<body class="bg-slate-950 text-slate-100 min-h-[100dvh] flex flex-col justify-between selection:bg-brand-500 selection:text-white pb-20 md:pb-0">
 
+    <!-- HEADER MOBILE & DESKTOP -->
     <header class="sticky top-0 z-40 glass border-b border-slate-800/80 px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-            <span class="text-lg font-extrabold tracking-tight gradient-text">MANAS</span>
-            <span class="text-[9px] uppercase px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold">OS</span>
+        <div class="flex items-center space-x-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-500 to-purple-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                <i data-lucide="layers" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+                <span class="text-lg font-extrabold tracking-tight gradient-text">MANAS</span>
+                <span class="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">OS</span>
+            </div>
         </div>
-        <button onclick="openAuthModal()" id="auth-btn" class="bg-gradient-to-r from-brand-600 to-brand-500 px-3.5 py-2 rounded-xl text-xs font-bold text-white shadow-lg">Connexion</button>
+
+        <!-- Navigation centrale Desktop -->
+        <nav class="hidden md:flex items-center space-x-1 glass-card px-3 py-1.5 rounded-full border border-slate-800">
+            <button onclick="switchTab('explore')" id="nav-explore" class="px-4 py-1.5 rounded-full text-xs font-semibold transition-all bg-brand-500 text-white shadow-md">Explorer</button>
+            <button onclick="switchTab('reels')" id="nav-reels" class="px-4 py-1.5 rounded-full text-xs font-medium transition-all text-slate-400 hover:text-white">Réels 🎬</button>
+            <button onclick="switchTab('lidar')" id="nav-lidar" class="px-4 py-1.5 rounded-full text-xs font-medium transition-all text-slate-400 hover:text-white">Scan 3D 📐</button>
+            <button onclick="switchTab('escrow')" id="nav-escrow" class="px-4 py-1.5 rounded-full text-xs font-medium transition-all text-slate-400 hover:text-white">Séquestre 🛡️</button>
+            <button onclick="switchTab('chat')" id="nav-chat" class="px-4 py-1.5 rounded-full text-xs font-medium transition-all text-slate-400 hover:text-white">Messagerie 💬</button>
+            <button onclick="switchTab('copilot')" id="nav-copilot" class="px-4 py-1.5 rounded-full text-xs font-medium transition-all text-slate-400 hover:text-white">Copilote 🧠</button>
+        </nav>
+
+        <!-- Actions Droite & Devises -->
+        <div class="flex items-center space-x-2">
+            <select id="currency-select" onchange="changeCurrency(this.value)" class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-2.5 py-2 text-slate-200 font-semibold focus:outline-none">
+                <option value="XAF">FCFA</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="USD">USD ($)</option>
+            </select>
+            
+            <button onclick="openAuthModal()" class="active-tap bg-gradient-to-r from-brand-600 to-brand-500 px-3.5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-brand-500/20 flex items-center space-x-1.5">
+                <i data-lucide="user" class="w-4 h-4"></i>
+                <span id="auth-btn-text">Connexion</span>
+            </button>
+        </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 space-y-4">
-        <section class="space-y-4">
-            <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2">
-                <h1 class="text-xl font-black">Trouvez un artisan certifié</h1>
-                <p class="text-xs text-slate-400">Plateforme globale BTP & Séquestre.</p>
+    <!-- CONTENEUR PRINCIPAL -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4">
+
+        <!-- ONGLET 1 : EXPLORER & ARTISANS -->
+        <section id="tab-explore" class="space-y-4">
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-800 p-5 shadow-xl">
+                <div class="relative z-10 space-y-2">
+                    <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-[10px] font-semibold">
+                        <i data-lucide="sparkles" class="w-3 h-3"></i>
+                        <span>Standards Silicon Valley</span>
+                    </div>
+                    <h1 class="text-xl sm:text-3xl font-black tracking-tight leading-snug">
+                        Trouvez un artisan certifié avec <span class="gradient-text">Séquestre & IA</span>
+                    </h1>
+                    
+                    <div class="flex gap-2 pt-2">
+                        <div class="flex-1 flex items-center px-3 bg-slate-950/90 rounded-xl border border-slate-800">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 mr-2"></i>
+                            <input type="text" id="search-input" oninput="filterArtisans()" placeholder="Menuisier, Maçon, Architecte..." class="w-full bg-transparent text-xs py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="artisans-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-2">
-                    <h4 class="font-bold text-sm text-white">Atelier Nlong (Demo)</h4>
-                    <span class="text-[10px] text-brand-400 font-semibold">Menuiserie & Agencement • Yaoundé</span>
-                    <p class="text-xs text-slate-300">Expert en mobilier sur mesure et finitions haut standing.</p>
+
+            <div class="flex items-center space-x-2 overflow-x-auto hide-scrollbar py-1">
+                <button onclick="filterCategory('all')" id="cat-all" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-500 text-white whitespace-nowrap shadow-md">Tous</button>
+                <button onclick="filterCategory('menuiserie')" id="cat-menuiserie" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">🪑 Menuiserie</button>
+                <button onclick="filterCategory('maconnerie')" id="cat-maconnerie" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">🏗️ Maçonnerie</button>
+                <button onclick="filterCategory('electricite')" id="cat-electricite" class="category-btn active-tap px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900 border border-slate-800 text-slate-300 whitespace-nowrap">⚡ Électricité</button>
+            </div>
+
+            <div id="artisans-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Injecté par JS / Supabase -->
+            </div>
+        </section>
+
+        <!-- ONGLET 2 : REELS VIDÉO TIKTOK STYLE -->
+        <section id="tab-reels" class="hidden max-w-sm mx-auto space-y-3">
+            <div id="reels-container" class="relative bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 h-[72dvh] flex flex-col justify-end shadow-2xl">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-10"></div>
+                <img id="reel-img" src="https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&q=80&w=800" class="absolute inset-0 w-full h-full object-cover">
+                
+                <div class="absolute right-3 bottom-20 z-20 flex flex-col items-center space-y-4">
+                    <button onclick="likeReel()" class="active-tap w-11 h-11 rounded-full bg-slate-900/80 border border-slate-700 flex flex-col items-center justify-center text-rose-500">
+                        <i data-lucide="heart" class="w-5 h-5 fill-current"></i>
+                        <span id="reel-likes" class="text-[9px] font-bold text-white">2.4K</span>
+                    </button>
+                    <button onclick="alert('Lien copié !')" class="active-tap w-11 h-11 rounded-full bg-slate-900/80 border border-slate-700 flex items-center justify-center text-white">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="relative z-20 p-4 space-y-2">
+                    <div class="flex items-center space-x-2.5">
+                        <img id="reel-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" class="w-9 h-9 rounded-full border-2 border-brand-500 object-cover">
+                        <div>
+                            <h4 id="reel-name" class="font-bold text-xs">Atelier Nlong</h4>
+                            <span class="text-[10px] text-brand-400 font-medium">Menuisier d'Art • ⭐ 4.9</span>
+                        </div>
+                    </div>
+                    <p id="reel-desc" class="text-xs text-slate-300 line-clamp-2">Fabrication sur mesure d'une cuisine moderne en bois massif avec îlot central à Yaoundé.</p>
+                    <button onclick="switchTab('chat')" class="active-tap w-full bg-brand-500 py-2.5 rounded-xl text-xs font-bold text-white shadow-lg">
+                        Contacter l'artisan
+                    </button>
+                </div>
+
+                <div class="absolute top-3 left-0 right-0 z-20 flex justify-between px-4">
+                    <button onclick="prevReel()" class="bg-slate-900/70 px-3 py-1 rounded-full text-[10px] font-semibold">◀ Précédent</button>
+                    <span id="reel-counter" class="text-[10px] font-bold bg-slate-900/70 px-3 py-1 rounded-full">1 / 3</span>
+                    <button onclick="nextReel()" class="bg-slate-900/70 px-3 py-1 rounded-full text-[10px] font-semibold">Suivant ▶</button>
                 </div>
             </div>
         </section>
+
+        <!-- ONGLET 3 : SCAN 3D LIDAR MOBILE -->
+        <section id="tab-lidar" class="hidden space-y-4">
+            <div class="glass-card p-4 rounded-2xl border border-slate-800">
+                <div class="mb-3">
+                    <span class="text-[10px] font-semibold text-cyan-400 uppercase tracking-widest">Inspection Spatiale LiDAR</span>
+                    <h2 class="text-lg font-bold">Jumeau Numérique 3D</h2>
+                </div>
+                <div id="canvas-3d-container" class="relative w-full h-[320px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                    <div id="loading-3d" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 z-10">
+                        <div class="w-6 h-6 border-3 border-cyan-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                        <span class="text-xs text-slate-400">Chargement modèle 3D...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ONGLET 4 : SÉQUESTRE MOBILE -->
+        <section id="tab-escrow" class="hidden space-y-4">
+            <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-bold">Smart Contract Escrow</h2>
+                    <span class="text-xs font-bold text-brand-400">1 500 000 FCFA</span>
+                </div>
+                <div class="space-y-2 text-xs">
+                    <div class="p-3 rounded-xl bg-slate-900 border border-emerald-500/40 flex justify-between items-center">
+                        <span>Jalon 1 : Fondations</span>
+                        <span class="text-emerald-400 font-bold">✓ Libéré</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-slate-900 border border-brand-500/40 flex justify-between items-center">
+                        <span>Jalon 2 : Finitions bois</span>
+                        <span class="text-brand-400 font-bold">🔒 En séquestre</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ONGLET 5 : MESSAGERIE MOBILE -->
+        <section id="tab-chat" class="hidden space-y-3">
+            <div class="glass-card rounded-2xl p-3 border border-slate-800 h-[65dvh] flex flex-col justify-between">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <h4 class="font-bold text-xs">Atelier Nlong</h4>
+                    <span class="text-[10px] text-emerald-400">● En ligne</span>
+                </div>
+                <div id="chat-messages" class="flex-1 my-2 overflow-y-auto space-y-2 text-xs">
+                    <div class="bg-slate-900 p-2.5 rounded-xl max-w-[85%]">
+                        <p>Bonjour ! Les mesures du plan sont validées.</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="chat-input" placeholder="Message..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    <button onclick="sendMessage()" class="bg-brand-500 p-2 rounded-xl text-white">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ONGLET 6 : COPILOTE IA -->
+        <section id="tab-copilot" class="hidden space-y-4">
+            <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-3">
+                <h2 class="text-base font-bold">Architectural Copilot™</h2>
+                <textarea id="copilot-prompt" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white" placeholder="Rénovation cuisine à Yaoundé..."></textarea>
+                <button onclick="generateCopilotProject()" class="w-full bg-purple-600 py-3 rounded-xl text-xs font-bold text-white">Générer Devis IA 🚀</button>
+            </div>
+        </section>
+
     </main>
+
+    <!-- NAVBAR MOBILE BOTTOM FIXÉE EN BAS -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-slate-800 px-2 py-1.5 z-50 flex justify-around items-center">
+        <button onclick="switchTab('explore')" id="mob-explore" class="active-tap flex flex-col items-center text-brand-500 p-1.5">
+            <i data-lucide="compass" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-0.5 font-bold">Explorer</span>
+        </button>
+        <button onclick="switchTab('reels')" id="mob-reels" class="active-tap flex flex-col items-center text-slate-400 p-1.5">
+            <i data-lucide="video" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-0.5">Réels</span>
+        </button>
+        <button onclick="switchTab('lidar')" id="mob-lidar" class="active-tap flex flex-col items-center text-slate-400 p-1.5">
+            <i data-lucide="scan" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-0.5">Scan 3D</span>
+        </button>
+        <button onclick="switchTab('escrow')" id="mob-escrow" class="active-tap flex flex-col items-center text-slate-400 p-1.5">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-0.5">Séquestre</span>
+        </button>
+        <button onclick="switchTab('chat')" id="mob-chat" class="active-tap flex flex-col items-center text-slate-400 p-1.5">
+            <i data-lucide="message-square" class="w-5 h-5"></i>
+            <span class="text-[9px] mt-0.5">Chat</span>
+        </button>
+    </div>
 
     <!-- MODAL AUTH -->
     <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
         <div class="glass-card p-6 rounded-2xl border border-slate-800 max-w-xs w-full space-y-4 relative">
             <button onclick="closeAuthModal()" class="absolute top-3 right-3 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
-            <h3 class="text-lg font-bold text-center gradient-text">Connexion MANAS</h3>
-            <input type="email" id="email" placeholder="Votre email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white">
-            <input type="password" id="password" placeholder="Mot de passe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white">
-            <button onclick="handleLogin()" class="w-full bg-brand-500 py-2.5 rounded-xl text-xs font-bold text-white shadow-lg">Se connecter</button>
+            <h3 class="text-lg font-bold text-center gradient-text">MANAS Auth</h3>
+            <input type="email" id="auth-email" placeholder="Email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs">
+            <input type="password" id="auth-password" placeholder="Mot de passe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs">
+            <button onclick="handleAuthSubmit()" class="w-full bg-brand-500 py-2.5 rounded-xl text-xs font-bold text-white">Connexion</button>
         </div>
     </div>
 
+    <!-- SCRIPT LOGIQUE & SUPABASE -->
     <script>
         lucide.createIcons();
-        function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-        function handleLogin() {
-            alert("Mode démonstration actif — Authentification initialisée avec succès !");
-            document.getElementById('auth-btn').innerText = "Mon Compte";
-            closeAuthModal();
-        }
-    </script>
-</body>
-</html>
+
+        // Identifiants Supabase configurés pour MANAS
+        const SUPABASE_URL = 'https://qdzgywqocpyijxyjjief.supabase.co';
+        const SUPABASE_ANON_KEY = 'Sb_publishable_dWYtPG6poRu2URshRlsb4Q_1Nlay06f';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const artisans = [
+            { id: 1, name: "Atelier Nlong", category: "menuiserie", badge: "Artisan d'Or", rating: 4.9, location: "Bastos, Yaoundé", priceXAF: "15 000 FCFA", image: "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&q=80&w=800", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200" },
+            { id: 2, name: "BatiPro BTP", category: "maconnerie", badge: "Certifié ISO", rating: 4.7, location: "Odza, Yaoundé", priceXAF: "50 000 FCFA", image: "https://images.unsplash.com/photo-1541888946425-d0fbb18f5f3e?auto=format&fit=crop&q=80&w=800", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200" }
+        ];
+
+        function renderArtisans(list = artisans) {
+            const grid = document.getElementById('artisans-grid');
+            grid.innerHTML = '';
+            list.forEach(a => {
+                grid.innerHTML += `
+                    <div class="glass-card rounded-2xl overflow-hidden border border-slate-800">
+                        <div class="h-36 relative">
+                            <img src="${a.image}" class="w-full h-full object-cover">
+                            <span class="absolute top-2 left-2 bg-slate-950/80 text-[9px] font-bold text-brand-400 px-2 py-0.5 rounded-full">${a.badge}</span>
+                        </div>
+                        <div class="p-3 space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <img src="${a.avatar}" class="w-8 h-8 rounded-full border border-brand-500 object-cover">
+                                <div>
+                                    <h3 class="font-bold text-xs">${a.name}</h3>
+                                    <span c
